@@ -1,0 +1,457 @@
+<!--
+  This file has been completely refactored to align with the updated
+  employee-form.component.ts. It now includes a tabbed interface,
+  binds to all new form controls and form arrays, uses the static option
+  lists for dropdowns, and implements the new "Requests" section.
+  The layout is structured with Tailwind CSS for a modern, clean UI.
+-->
+<div class="space-y-6 animate-fade-in-down" [formGroup]="employeeForm">
+  <!-- Header -->
+  <div class="flex justify-between items-center">
+    <div>
+      <h2 class="text-2xl font-bold text-gray-800 dark:text-white">
+        @if (employee()) {
+          <span>تعديل بيانات الموظف: {{ employee()?.name }}</span>
+        } @else {
+          <span>إضافة موظف جديد</span>
+        }
+      </h2>
+      <p class="text-sm text-gray-500 dark:text-gray-400">أدخل التفاصيل في الأقسام أدناه.</p>
+    </div>
+    <button (click)="cancel()" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+    </button>
+  </div>
+
+  <!-- Tabs Navigation -->
+  <div class="border-b border-gray-200 dark:border-gray-700">
+    <nav class="-mb-px flex space-x-8 rtl:space-x-reverse overflow-x-auto" aria-label="Tabs">
+      <button (click)="activeTab.set('data')" class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm" [class.border-primary-500]="activeTab() === 'data'" [class.text-primary-600]="activeTab() === 'data'" [class.border-transparent]="activeTab() !== 'data'" [class.text-gray-500]="activeTab() !== 'data'">إدارة البيانات</button>
+      <button (click)="activeTab.set('documents')" class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm" [class.border-primary-500]="activeTab() === 'documents'" [class.text-primary-600]="activeTab() === 'documents'" [class.border-transparent]="activeTab() !== 'documents'" [class.text-gray-500]="activeTab() !== 'documents'">المستندات والوثائق</button>
+      <button (click)="activeTab.set('time')" class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm" [class.border-primary-500]="activeTab() === 'time'" [class.text-primary-600]="activeTab() === 'time'" [class.border-transparent]="activeTab() !== 'time'" [class.text-gray-500]="activeTab() !== 'time'">إدارة الوقت</button>
+      <button (click)="activeTab.set('performance')" class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm" [class.border-primary-500]="activeTab() === 'performance'" [class.text-primary-600]="activeTab() === 'performance'" [class.border-transparent]="activeTab() !== 'performance'" [class.text-gray-500]="activeTab() !== 'performance'">الأداء والتقييمات</button>
+      <button (click)="activeTab.set('requests')" class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm" [class.border-primary-500]="activeTab() === 'requests'" [class.text-primary-600]="activeTab() === 'requests'" [class.border-transparent]="activeTab() !== 'requests'" [class.text-gray-500]="activeTab() !== 'requests'">الطلبات</button>
+    </nav>
+  </div>
+
+  <!-- Tab Content -->
+  @switch (activeTab()) {
+    @case ('data') {
+      <div class="space-y-6">
+        <!-- General Information -->
+        <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md">
+          <h3 class="text-xl font-bold mb-4">المعلومات العامة</h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="lg:col-span-2">
+              <label class="block text-sm font-medium mb-1">الاسم كامل <span class="text-red-500">*</span></label>
+              <input type="text" formControlName="name" class="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600">
+            </div>
+            <div>
+              <label class="block text-sm font-medium mb-1">الرقم الوظيفي <span class="text-red-500">*</span></label>
+              <input type="number" formControlName="id" class="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600" [readOnly]="!!employee()">
+            </div>
+            <div>
+                <label class="block text-sm font-medium mb-1">الجنسية</label>
+                <input type="text" formControlName="nationality" class="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600">
+            </div>
+            <div>
+                <label class="block text-sm font-medium mb-1">تاريخ الميلاد</label>
+                <input type="date" formControlName="dateOfBirth" class="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600">
+            </div>
+             <div>
+                <label class="block text-sm font-medium mb-1">الجنس</label>
+                <select formControlName="gender" class="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600">
+                  @for(opt of genderOptions; track opt) {<option [value]="opt">{{opt}}</option>}
+                </select>
+            </div>
+             <div>
+                <label class="block text-sm font-medium mb-1">الحالة الاجتماعية</label>
+                <select formControlName="maritalStatus" class="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600">
+                  @for(opt of maritalStatusOptions; track opt) {<option [value]="opt">{{opt}}</option>}
+                </select>
+            </div>
+            <div>
+                <label class="block text-sm font-medium mb-1">الهاتف المتحرك <span class="text-red-500">*</span></label>
+                <input type="tel" formControlName="mobilePhone" class="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600">
+            </div>
+             <div class="lg:col-span-4">
+                <label class="block text-sm font-medium mb-1">عنوان السكن</label>
+                <input type="text" formControlName="address" class="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600">
+            </div>
+          </div>
+        </div>
+        
+        <!-- Job Information -->
+        <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md">
+            <h3 class="text-xl font-bold mb-4">المعلومات الوظيفية</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div><label class="block text-sm font-medium mb-1">تاريخ الانضمام <span class="text-red-500">*</span></label><input type="date" formControlName="joinDate" class="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"></div>
+                <div><label class="block text-sm font-medium mb-1">المسمى الوظيفي <span class="text-red-500">*</span></label><input type="text" formControlName="role" class="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"></div>
+                <div><label class="block text-sm font-medium mb-1">القسم</label><input type="text" formControlName="department" class="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"></div>
+                <div><label class="block text-sm font-medium mb-1">الفرع <span class="text-red-500">*</span></label>
+                  <select formControlName="branch" class="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600">
+                    @for(opt of branchOptions; track opt) {<option [value]="opt">{{opt}}</option>}
+                  </select>
+                </div>
+                <div><label class="block text-sm font-medium mb-1">نوع العقد <span class="text-red-500">*</span></label>
+                  <select formControlName="contractType" class="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600">
+                    @for(opt of contractTypeOptions; track opt) {<option [value]="opt">{{opt}}</option>}
+                  </select>
+                </div>
+                <div class="lg:col-span-2"><label class="block text-sm font-medium mb-1">تاريخ انتهاء عقد العمل</label><div class="flex items-center gap-2"><input type="date" formControlName="contractEndDate" class="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"><input type="number" formControlName="contractEndReminderDays" class="w-24 p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600" title="تذكير قبل (يوم)"><span class="text-xs text-gray-500">يوم</span></div></div>
+                <div><label class="block text-sm font-medium mb-1">المسؤول المباشر</label><select formControlName="directManagerId" class="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"><option [ngValue]="null">-- اختر --</option></select></div>
+                <div><label class="block text-sm font-medium mb-1">حالة الإقامة</label><input type="text" formControlName="residencyStatus" class="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"></div>
+            </div>
+            <div class="mt-4 pt-4 border-t dark:border-gray-700 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div class="col-span-full font-semibold text-gray-500 dark:text-gray-400">تواريخ انتهاء القيود</div>
+                <div><label class="block text-sm font-medium mb-1">مندوب</label><div class="flex items-center gap-2"><input type="date" formControlName="proCardExpiry" class="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"><input type="number" formControlName="proCardReminderDays" class="w-24 p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600" title="تذكير قبل (يوم)"><span class="text-xs text-gray-500">يوم</span></div></div>
+                <div><label class="block text-sm font-medium mb-1">محامي/دبي</label><div class="flex items-center gap-2"><input type="date" formControlName="lawyerLicenseDubaiExpiry" class="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"><input type="number" formControlName="lawyerLicenseDubaiReminderDays" class="w-24 p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600" title="تذكير قبل (يوم)"><span class="text-xs text-gray-500">يوم</span></div></div>
+                <div><label class="block text-sm font-medium mb-1">محامي/الشارقة</label><div class="flex items-center gap-2"><input type="date" formControlName="lawyerLicenseSharjahExpiry" class="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"><input type="number" formControlName="lawyerLicenseSharjahReminderDays" class="w-24 p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600" title="تذكير قبل (يوم)"><span class="text-xs text-gray-500">يوم</span></div></div>
+                <div><label class="block text-sm font-medium mb-1">محامي/عجمان</label><div class="flex items-center gap-2"><input type="date" formControlName="lawyerLicenseAjmanExpiry" class="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"><input type="number" formControlName="lawyerLicenseAjmanReminderDays" class="w-24 p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600" title="تذكير قبل (يوم)"><span class="text-xs text-gray-500">يوم</span></div></div>
+                <div><label class="block text-sm font-medium mb-1">محامي/أبوظبي</label><div class="flex items-center gap-2"><input type="date" formControlName="lawyerLicenseAbuDhabiExpiry" class="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"><input type="number" formControlName="lawyerLicenseAbuDhabiReminderDays" class="w-24 p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600" title="تذكير قبل (يوم)"><span class="text-xs text-gray-500">يوم</span></div></div>
+            </div>
+        </div>
+
+        <!-- Salary Details -->
+        <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md" formGroupName="salaryDetails">
+            <h3 class="text-xl font-bold mb-4">تفاصيل الراتب</h3>
+            <div class="grid grid-cols-2 lg:grid-cols-5 gap-4">
+                <div><label class="block text-sm font-medium mb-1">الراتب الأساسي</label><input type="number" formControlName="basic" class="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"></div>
+                <div><label class="block text-sm font-medium mb-1">بدل السكن</label><input type="number" formControlName="housing" class="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"></div>
+                <div><label class="block text-sm font-medium mb-1">بدل المواصلات</label><input type="number" formControlName="transport" class="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"></div>
+                <div><label class="block text-sm font-medium mb-1">بدلات أخرى</label><input type="number" formControlName="other" class="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"></div>
+                <div><label class="block text-sm font-medium mb-1">إجمالي الراتب</label><input type="number" [value]="totalSalary()" class="w-full p-2 border rounded-md dark:bg-gray-900 dark:border-gray-700 bg-gray-100 font-bold" readonly></div>
+            </div>
+        </div>
+
+        <!-- Bank Details -->
+        <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md">
+            <h3 class="text-xl font-bold mb-4">بيانات البنك</h3>
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                <div><label class="block text-sm font-medium mb-1">طريقة دفع الراتب</label>
+                  <select formControlName="salaryPaymentMethod" class="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600">
+                    @for(opt of salaryPaymentMethodOptions; track opt.value) {<option [value]="opt.value">{{opt.label}}</option>}
+                  </select>
+                </div>
+                <div><label class="block text-sm font-medium mb-1">اسم البنك</label><input type="text" formControlName="bankName" class="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"></div>
+                <div><label class="block text-sm font-medium mb-1">IBAN</label><input type="text" formControlName="iban" class="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"></div>
+                <div><label class="block text-sm font-medium mb-1">رقم الحساب</label><input type="text" formControlName="accountNo" class="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"></div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- Emergency -->
+            <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md">
+                <h3 class="text-xl font-bold mb-4">معلومات في حالة الطوارئ</h3>
+                <div class="flex items-center gap-4 mb-4"><label class="text-sm font-medium">هل يوجد مشاكل صحية؟</label><div class="flex items-center gap-4"><label class="flex items-center gap-2"><input type="radio" [value]="true" formControlName="hasHealthIssues" class="form-radio text-primary-600"> نعم</label><label class="flex items-center gap-2"><input type="radio" [value]="false" formControlName="hasHealthIssues" class="form-radio text-primary-600"> لا</label></div></div>
+                @if(employeeForm.get('hasHealthIssues')?.value) {
+                    <textarea formControlName="healthIssuesDetails" placeholder="يرجى توضيح المشاكل الصحية..." class="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 mb-4"></textarea>
+                }
+                <div formArrayName="emergencyContacts" class="space-y-4">
+                  @for (contact of emergencyContacts.controls; track $index) {
+                     <div [formGroupName]="$index" class="p-3 border rounded-md dark:border-gray-700">
+                        <p class="font-semibold mb-2">جهة اتصال {{$index + 1}}</p>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
+                            <input type="text" formControlName="name" placeholder="الاسم" class="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600">
+                            <input type="text" formControlName="relationship" placeholder="صلة القرابة" class="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600">
+                            <input type="tel" formControlName="phone" placeholder="الهاتف" class="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600">
+                        </div>
+                     </div>
+                  }
+                </div>
+            </div>
+            <!-- Legal Docs -->
+             <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md">
+                <h3 class="text-xl font-bold mb-4">المستندات القانونية</h3>
+                <div class="space-y-4">
+                    <div><label class="block text-sm font-medium mb-1">رقم جواز السفر</label><input type="text" formControlName="passportNo" class="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"></div>
+                    <div><label class="block text-sm font-medium mb-1">تاريخ انتهاء الجواز</label><div class="flex items-center gap-2"><input type="date" formControlName="passportExpiry" class="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"><input type="number" formControlName="passportExpiryReminderDays" class="w-24 p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600" title="تذكير قبل (يوم)"><span class="text-xs text-gray-500">يوم</span></div></div>
+                    <div><label class="block text-sm font-medium mb-1">رقم الهوية الإماراتية</label><input type="text" formControlName="emiratesIdNo" class="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"></div>
+                    <div><label class="block text-sm font-medium mb-1">تاريخ انتهاء الهوية</label><div class="flex items-center gap-2"><input type="date" formControlName="emiratesIdExpiry" class="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"><input type="number" formControlName="emiratesIdExpiryReminderDays" class="w-24 p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600" title="تذكير قبل (يوم)"><span class="text-xs text-gray-500">يوم</span></div></div>
+                    <div><label class="block text-sm font-medium mb-1">رقم بطاقة العمل</label><input type="text" formControlName="workPermitNo" class="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"></div>
+                    <div><label class="block text-sm font-medium mb-1">تاريخ انتهاء بطاقة العمل</label><div class="flex items-center gap-2"><input type="date" formControlName="workPermitExpiry" class="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"><input type="number" formControlName="workPermitExpiryReminderDays" class="w-24 p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600" title="تذكير قبل (يوم)"><span class="text-xs text-gray-500">يوم</span></div></div>
+                    <div><label class="block text-sm font-medium mb-1">تاريخ انتهاء تأمين صحي</label><div class="flex items-center gap-2"><input type="date" formControlName="healthInsuranceExpiry" class="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"><input type="number" formControlName="healthInsuranceExpiryReminderDays" class="w-24 p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600" title="تذكير قبل (يوم)"><span class="text-xs text-gray-500">يوم</span></div></div>
+                </div>
+            </div>
+        </div>
+      </div>
+    }
+    @case ('documents') {
+        <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md">
+            <h3 class="text-xl font-bold mb-4">المستندات والوثائق</h3>
+            <div class="space-y-4">
+                @for (doc of ['السيرة الذاتية', 'جواز السفر', 'الهوية الإماراتية', 'شهادة حسن السيرة والسلوك', 'الشهادة الجامعية', 'عقد العمل', 'بطاقة العمل', 'التأمين الصحي', 'أخرى']; track doc) {
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-center p-3 border rounded-lg dark:border-gray-700">
+                        <div class="font-semibold">{{doc}}</div>
+                        <div class="md:col-span-2">
+                           <app-file-upload></app-file-upload>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+    @case ('time') {
+      <div class="space-y-6">
+        <!-- Working Hours & Holidays Settings -->
+        <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md">
+          <h3 class="text-xl font-bold mb-4">إعدادات الدوام</h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div formGroupName="workingHours" class="space-y-4 p-4 border rounded-lg dark:border-gray-700">
+              <h4 class="font-semibold">ساعات العمل الرسمية</h4>
+              <div class="flex items-center gap-4">
+                <div class="flex-1">
+                  <label class="block text-sm font-medium mb-1">من</label>
+                  <input type="time" formControlName="startTime" class="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600">
+                </div>
+                <div class="flex-1">
+                  <label class="block text-sm font-medium mb-1">إلى</label>
+                  <input type="time" formControlName="endTime" class="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600">
+                </div>
+              </div>
+            </div>
+            <div class="space-y-2 p-4 border rounded-lg dark:border-gray-700">
+              <h4 class="font-semibold">العطلات الرسمية المسجلة</h4>
+              @if (officialHolidays().length > 0) {
+                <ul class="text-sm max-h-24 overflow-y-auto">
+                  @for(holiday of officialHolidays(); track holiday.date) {
+                    <li class="flex justify-between py-1">
+                      <span>{{holiday.name}}</span>
+                      <span class="text-gray-500 dark:text-gray-400">{{holiday.date | date: 'longDate'}}</span>
+                    </li>
+                  }
+                </ul>
+              } @else {
+                <p class="text-sm text-gray-400">لا توجد عطلات رسمية مسجلة.</p>
+              }
+              <p class="text-xs text-gray-400 pt-2">ملاحظة: يتم إدارة العطلات الرسمية من إعدادات النظام.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- External Missions -->
+        <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md">
+          <h3 class="text-xl font-bold mb-4">المأموريات الخارجية (مراجعات)</h3>
+          <div class="overflow-x-auto" formArrayName="externalMissions">
+            <table class="w-full min-w-[700px] text-sm">
+              <thead class="text-xs text-gray-500 dark:text-gray-400">
+                <tr>
+                  <th class="p-2 text-right">التاريخ</th><th class="p-2 text-right">من الساعة</th><th class="p-2 text-right">إلى الساعة</th>
+                  <th class="p-2 text-right">الوجهة</th><th class="p-2 text-right">السبب</th><th></th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (group of externalMissions.controls; track $index) {
+                  <tr [formGroupName]="$index" class="border-b dark:border-gray-700">
+                    <td class="p-1"><input type="date" formControlName="date" class="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"></td>
+                    <td class="p-1"><input type="time" formControlName="fromTime" class="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"></td>
+                    <td class="p-1"><input type="time" formControlName="toTime" class="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"></td>
+                    <td class="p-1"><input type="text" formControlName="destination" class="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"></td>
+                    <td class="p-1"><input type="text" formControlName="reason" class="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"></td>
+                    <td class="p-1"><button type="button" (click)="removeExternalMission($index)" class="text-red-500 p-2 hover:bg-red-100 rounded-full">&times;</button></td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+          <button type="button" (click)="addExternalMission()" class="mt-4 px-3 py-1 text-sm bg-gray-100 dark:bg-gray-700 rounded-md hover:bg-gray-200">+ إضافة مأمورية</button>
+        </div>
+
+        <!-- Attendance -->
+        <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md">
+          <h3 class="text-xl font-bold mb-4">سجل الحضور</h3>
+          <div class="overflow-x-auto" formArrayName="attendanceRecords">
+            <table class="w-full min-w-[600px] text-sm">
+              <thead class="text-xs text-gray-500 dark:text-gray-400"><tr><th class="p-2 text-right">اليوم والتاريخ</th><th class="p-2 text-right">تسجيل الدخول</th><th class="p-2 text-right">تسجيل الخروج</th><th class="p-2 text-right">التأخير (دقيقة)</th><th class="p-2 text-right">خروج مبكر (دقيقة)</th><th></th></tr></thead>
+              <tbody>
+                @for (group of attendanceRecords.controls; track $index) {
+                  <tr [formGroupName]="$index" class="border-b dark:border-gray-700">
+                    <td class="p-1"><input type="date" formControlName="date" class="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"></td>
+                    <td class="p-1"><input type="time" formControlName="signIn" class="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"></td>
+                    <td class="p-1"><input type="time" formControlName="signOut" class="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"></td>
+                    <td class="p-1"><input type="number" formControlName="lateMinutes" class="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"></td>
+                    <td class="p-1"><input type="number" formControlName="earlyLeaveMinutes" class="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"></td>
+                    <td class="p-1"><button type="button" (click)="removeAttendanceRecord($index)" class="text-red-500 p-2 hover:bg-red-100 rounded-full">&times;</button></td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+          <button type="button" (click)="addAttendanceRecord()" class="mt-4 px-3 py-1 text-sm bg-gray-100 dark:bg-gray-700 rounded-md hover:bg-gray-200">+ إضافة سجل</button>
+        </div>
+        <!-- Deductions -->
+        <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md">
+            <h3 class="text-xl font-bold mb-4">الخصومات</h3>
+            <div class="overflow-x-auto" formArrayName="deductions">
+                <table class="w-full min-w-[600px] text-sm">
+                    <thead class="text-xs text-gray-500 dark:text-gray-400"><tr><th class="p-2 text-right">التاريخ</th><th class="p-2 text-right">الراتب الإجمالي</th><th class="p-2 text-right">المبلغ المخصوم</th><th class="p-2 text-right">سبب الخصم</th><th></th></tr></thead>
+                    <tbody>
+                        @for(group of deductions.controls; track $index) {
+                            <tr [formGroupName]="$index" class="border-b dark:border-gray-700">
+                                <td class="p-1"><input type="date" formControlName="date" class="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"></td>
+                                <td class="p-1"><input type="number" formControlName="totalSalary" class="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"></td>
+                                <td class="p-1"><input type="number" formControlName="amount" class="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"></td>
+                                <td class="p-1"><select formControlName="reason" class="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"><option value="غياب">غياب</option><option value="تأخير">تأخير</option><option value="خصم جزائي">خصم جزائي</option><option value="إهمال">إهمال</option><option value="أخرى">أخرى</option></select></td>
+                                <td class="p-1"><button type="button" (click)="removeDeduction($index)" class="text-red-500 p-2 hover:bg-red-100 rounded-full">&times;</button></td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            <button type="button" (click)="addDeduction()" class="mt-4 px-3 py-1 text-sm bg-gray-100 dark:bg-gray-700 rounded-md hover:bg-gray-200">+ إضافة خصم</button>
+        </div>
+      </div>
+    }
+    @case ('performance') {
+      <div class="space-y-6">
+        <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md">
+          <h3 class="text-xl font-bold mb-4">التقييمات</h3>
+          <div class="overflow-x-auto" formArrayName="appraisals">
+            <table class="w-full min-w-[600px] text-sm">
+              <thead class="text-xs text-gray-500 dark:text-gray-400"><tr><th class="p-2 text-right">تاريخ التقييم</th><th class="p-2 text-right">نوع التقييم</th><th class="p-2 text-right">المرفقات</th><th></th></tr></thead>
+              <tbody>
+                @for (group of appraisals.controls; track $index) {
+                  <tr [formGroupName]="$index" class="border-b dark:border-gray-700">
+                    <td class="p-1"><input type="date" formControlName="date" class="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"></td>
+                    <td class="p-1"><select formControlName="type" class="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"><option value="تقييم ذاتي">تقييم ذاتي</option><option value="شهري (ربع سنوي)">شهري (ربع سنوي)</option><option value="سنوي">سنوي</option></select></td>
+                    <td class="p-1"><app-file-upload></app-file-upload></td>
+                    <td class="p-1"><button type="button" (click)="removeAppraisal($index)" class="text-red-500 p-2 hover:bg-red-100 rounded-full">&times;</button></td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+          <button type="button" (click)="addAppraisal()" class="mt-4 px-3 py-1 text-sm bg-gray-100 dark:bg-gray-700 rounded-md hover:bg-gray-200">+ إضافة تقييم</button>
+        </div>
+        <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md">
+            <h3 class="text-xl font-bold mb-4">الإنذارات</h3>
+            <div class="overflow-x-auto" formArrayName="warnings">
+                <table class="w-full min-w-[600px] text-sm">
+                    <thead class="text-xs text-gray-500 dark:text-gray-400"><tr><th class="p-2 text-right">تاريخ الإنذار</th><th class="p-2 text-right">نوع الإنذار</th><th class="p-2 text-right">السبب</th><th class="p-2 text-right">المرفقات</th><th></th></tr></thead>
+                    <tbody>
+                        @for(group of warnings.controls; track $index) {
+                            <tr [formGroupName]="$index" class="border-b dark:border-gray-700">
+                                <td class="p-1"><input type="date" formControlName="date" class="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"></td>
+                                <td class="p-1"><select formControlName="type" class="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"><option value="شفهي">شفهي</option><option value="كتابي">كتابي</option></select></td>
+                                <td class="p-1"><input type="text" formControlName="reason" class="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"></td>
+                                <td class="p-1"><app-file-upload></app-file-upload></td>
+                                <td class="p-1"><button type="button" (click)="removeWarning($index)" class="text-red-500 p-2 hover:bg-red-100 rounded-full">&times;</button></td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            <button type="button" (click)="addWarning()" class="mt-4 px-3 py-1 text-sm bg-gray-100 dark:bg-gray-700 rounded-md hover:bg-gray-200">+ إضافة إنذار</button>
+        </div>
+        <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md">
+            <h3 class="text-xl font-bold mb-4">التدريب والتطوير</h3>
+            <div class="overflow-x-auto" formArrayName="trainings">
+                <table class="w-full min-w-[600px] text-sm">
+                    <thead class="text-xs text-gray-500 dark:text-gray-400"><tr><th class="p-2 text-right">تاريخ الدورة</th><th class="p-2 text-right">نوع التدريب</th><th class="p-2 text-right">المرفقات</th><th></th></tr></thead>
+                    <tbody>
+                        @for(group of trainings.controls; track $index) {
+                            <tr [formGroupName]="$index" class="border-b dark:border-gray-700">
+                                <td class="p-1"><input type="date" formControlName="date" class="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"></td>
+                                <td class="p-1"><input type="text" formControlName="type" class="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"></td>
+                                <td class="p-1"><app-file-upload></app-file-upload></td>
+                                <td class="p-1"><button type="button" (click)="removeTraining($index)" class="text-red-500 p-2 hover:bg-red-100 rounded-full">&times;</button></td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            <button type="button" (click)="addTraining()" class="mt-4 px-3 py-1 text-sm bg-gray-100 dark:bg-gray-700 rounded-md hover:bg-gray-200">+ إضافة تدريب</button>
+        </div>
+      </div>
+    }
+    @case ('requests') {
+       <div class="space-y-6">
+        <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md">
+            <h3 class="text-xl font-bold mb-4">تقديم طلب جديد</h3>
+            <form [formGroup]="newRequestForm" (ngSubmit)="addRequest()" class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end border-b pb-6 mb-6 dark:border-gray-700">
+                <div class="md:col-span-2">
+                    <label for="requestType" class="block text-sm font-medium mb-1">نوع الطلب <span class="text-red-500">*</span></label>
+                    <select id="requestType" formControlName="requestType" class="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600">
+                        <optgroup label="طلبات الإجازات">
+                            @for(type of leaveRequestTypes; track type) { <option [value]="type">{{type}}</option> }
+                        </optgroup>
+                        <optgroup label="طلبات إدارية">
+                            @for(type of certificateRequestTypes; track type) { <option [value]="type">{{type}}</option> }
+                        </optgroup>
+                    </select>
+                </div>
+                @if (isLeaveRequestType(newRequestForm.get('requestType')?.value)) {
+                    <div>
+                        <label for="fromDate" class="block text-sm font-medium mb-1">من تاريخ <span class="text-red-500">*</span></label>
+                        <input id="fromDate" type="date" formControlName="from" class="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600">
+                    </div>
+                    <div>
+                        <label for="toDate" class="block text-sm font-medium mb-1">إلى تاريخ <span class="text-red-500">*</span></label>
+                        <input id="toDate" type="date" formControlName="to" class="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600">
+                    </div>
+                }
+                <div class="md:col-span-4">
+                    <label for="details" class="block text-sm font-medium mb-1">التفاصيل (اختياري)</label>
+                    <textarea id="details" formControlName="details" rows="2" class="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600" placeholder="أضف تفاصيل إضافية هنا إذا لزم الأمر..."></textarea>
+                </div>
+                <div class="md:col-span-4 text-left">
+                    <button type="submit" [disabled]="newRequestForm.invalid" class="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition disabled:bg-gray-400 disabled:cursor-not-allowed">تقديم الطلب</button>
+                </div>
+            </form>
+            
+            <div class="flex flex-col md:flex-row justify-between items-center mb-4 gap-3">
+              <h3 class="text-xl font-bold">سجل الطلبات</h3>
+              <button (click)="exportRequests()" class="flex items-center gap-2 px-3 py-1.5 text-sm border rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 dark:border-gray-600">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                <span>تصدير إلى جداول بيانات</span>
+              </button>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm">
+                    <thead class="text-xs text-gray-500 dark:text-gray-400">
+                        <tr class="border-b dark:border-gray-600"><th class="p-2 text-right">تاريخ التقديم</th><th class="p-2 text-right">نوع الطلب</th><th class="p-2 text-right">الفترة</th><th class="p-2 text-right">موافقة المدير</th><th class="p-2 text-right">موافقة الموارد البشرية</th><th class="p-2 text-right">عرض</th></tr>
+                    </thead>
+                    <tbody>
+                        @if (requests.controls.length > 0) {
+                            @for (reqControl of requests.controls; track $index) {
+                                @let req = reqControl.value;
+                                <tr class="border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                                    <td class="p-2">{{req.submissionDate | date: 'yyyy/MM/dd'}}</td>
+                                    <td class="p-2 font-semibold">{{req.requestType}}</td>
+                                    <td class="p-2">
+                                        @if(req.from && req.to){ 
+                                            {{req.from | date: 'shortDate'}} - {{req.to | date: 'shortDate'}} 
+                                        } @else {
+                                            <span>-</span>
+                                        }
+                                    </td>
+                                    <td class="p-2"><span class="px-2 py-1 text-xs rounded-full font-medium" [class]="getStatusClass(req.directorApproval)">{{req.directorApproval}}</span></td>
+                                    <td class="p-2"><span class="px-2 py-1 text-xs rounded-full font-medium" [class]="getStatusClass(req.hrApproval)">{{req.hrApproval}}</span></td>
+                                    <td class="p-2">
+                                      <button title="عرض التفاصيل" class="p-1.5 rounded-full text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700 hover:text-primary-600">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+                                      </button>
+                                    </td>
+                                </tr>
+                            }
+                        } @else {
+                            <tr><td colspan="6" class="p-8 text-center text-gray-400">لا توجد طلبات سابقة.</td></tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+       </div>
+    }
+  }
+
+  <!-- Footer Actions -->
+  <footer class="flex justify-end items-center gap-4 pt-4">
+    <button (click)="cancel()" type="button" class="px-6 py-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition">
+      إلغاء
+    </button>
+    <button (click)="onSubmit()" type="submit" class="px-6 py-2 bg-primary-600 text-white font-semibold rounded-lg hover:bg-primary-700 transition" [disabled]="employeeForm.invalid">
+      حفظ البيانات
+    </button>
+  </footer>
+</div>

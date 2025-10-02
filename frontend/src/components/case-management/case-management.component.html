@@ -1,0 +1,288 @@
+<div class="space-y-6">
+  <!-- Tabs Navigation -->
+  <div class="border-b border-gray-200 dark:border-gray-700">
+    <nav class="-mb-px flex space-x-8 rtl:space-x-reverse" aria-label="Tabs">
+      <button 
+        (click)="activeTab.set('list')"
+        class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors duration-200 focus:outline-none flex items-center gap-2"
+        [class.border-primary-500]="activeTab() === 'list'"
+        [class.text-primary-600]="activeTab() === 'list'"
+        [class.dark:text-primary-300]="activeTab() === 'list'"
+        [class.border-transparent]="activeTab() !== 'list'"
+        [class.text-gray-500]="activeTab() !== 'list'"
+        [class.hover:text-gray-700]="activeTab() !== 'list'"
+        [class.hover:border-gray-300]="activeTab() !== 'list'"
+        [class.dark:text-gray-400]="activeTab() !== 'list'"
+        [class.dark:hover:text-gray-200]="activeTab() !== 'list'"
+        [class.dark:hover:border-gray-500]="activeTab() !== 'list'">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+        <span>قائمة القضايا</span>
+      </button>
+      <button 
+        (click)="activeTab.set('sessions')"
+        class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors duration-200 focus:outline-none flex items-center gap-2"
+        [class.border-primary-500]="activeTab() === 'sessions'"
+        [class.text-primary-600]="activeTab() === 'sessions'"
+        [class.dark:text-primary-300]="activeTab() === 'sessions'"
+        [class.border-transparent]="activeTab() !== 'sessions'"
+        [class.text-gray-500]="activeTab() !== 'sessions'"
+        [class.hover:text-gray-700]="activeTab() !== 'sessions'"
+        [class.hover:border-gray-300]="activeTab() !== 'sessions'"
+        [class.dark:text-gray-400]="activeTab() !== 'sessions'"
+        [class.dark:hover:text-gray-200]="activeTab() !== 'sessions'"
+        [class.dark:hover:border-gray-500]="activeTab() !== 'sessions'">
+         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+        <span>رول الجلسات</span>
+      </button>
+      <button 
+        (click)="activeTab.set('convert')"
+        class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors duration-200 focus:outline-none flex items-center gap-2"
+        [class.border-primary-500]="activeTab() === 'convert'"
+        [class.text-primary-600]="activeTab() === 'convert'"
+        [class.dark:text-primary-300]="activeTab() === 'convert'"
+        [class.border-transparent]="activeTab() !== 'convert'"
+        [class.text-gray-500]="activeTab() !== 'convert'"
+        [class.hover:text-gray-700]="activeTab() !== 'convert'"
+        [class.hover:border-gray-300]="activeTab() !== 'convert'"
+        [class.dark:text-gray-400]="activeTab() !== 'convert'"
+        [class.dark:hover:text-gray-200]="activeTab() !== 'convert'"
+        [class.dark:hover:border-gray-500]="activeTab() !== 'convert'">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m-15.357-2a8.001 8.001 0 0115.357-2m0 0H15" /></svg>
+        <span>تحويل نوع الملف</span>
+      </button>
+      <button 
+        (click)="activeTab.set('linked')"
+        class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors duration-200 focus:outline-none flex items-center gap-2"
+        [class.border-primary-500]="activeTab() === 'linked'"
+        [class.text-primary-600]="activeTab() === 'linked'"
+        [class.dark:text-primary-300]="activeTab() === 'linked'"
+        [class.border-transparent]="activeTab() !== 'linked'"
+        [class.text-gray-500]="activeTab() !== 'linked'"
+        [class.hover:text-gray-700]="activeTab() !== 'linked'"
+        [class.hover:border-gray-300]="activeTab() !== 'linked'"
+        [class.dark:text-gray-400]="activeTab() !== 'linked'"
+        [class.dark:hover:text-gray-200]="activeTab() !== 'linked'"
+        [class.dark:hover:border-gray-500]="activeTab() !== 'linked'">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" /></svg>
+        <span>الملفات المرتبطة</span>
+      </button>
+    </nav>
+  </div>
+
+  <div class="pt-2">
+    @switch (activeTab()) {
+      @case ('list') {
+        @if (isFormVisible()) {
+          <app-add-case-form [case]="editingCase()" (formClose)="closeForm()" />
+        } @else {
+          <div class="space-y-6">
+            <div>
+              <h2 class="text-3xl font-bold text-gray-800 dark:text-white">قائمة القضايا</h2>
+              <p class="mt-2 text-gray-500 dark:text-gray-400">تصفح وأدر جميع القضايا المفتوحة والمغلقة.</p>
+            </div>
+    
+            <!-- Stats -->
+            <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-5">
+              <div class="bg-white dark:bg-gray-800 p-5 rounded-xl shadow animate-fade-in transition-transform duration-300 hover:-translate-y-1">
+                <p class="text-sm font-medium text-gray-500 dark:text-gray-400">إجمالي القضايا</p>
+                <p class="mt-1 text-2xl font-semibold text-gray-900 dark:text-white">{{ caseStats().total }}</p>
+              </div>
+              <div class="bg-white dark:bg-gray-800 p-5 rounded-xl shadow animate-fade-in animation-delay-100 transition-transform duration-300 hover:-translate-y-1">
+                <p class="text-sm font-medium text-gray-500 dark:text-gray-400">قضايا مفتوحة</p>
+                <p class="mt-1 text-2xl font-semibold text-green-600 dark:text-green-400">{{ caseStats().open }}</p>
+              </div>
+              <div class="bg-white dark:bg-gray-800 p-5 rounded-xl shadow animate-fade-in animation-delay-200 transition-transform duration-300 hover:-translate-y-1">
+                <p class="text-sm font-medium text-gray-500 dark:text-gray-400">قيد التنفيذ</p>
+                <p class="mt-1 text-2xl font-semibold text-blue-600 dark:text-blue-400">{{ caseStats().inProgress }}</p>
+              </div>
+              <div class="bg-white dark:bg-gray-800 p-5 rounded-xl shadow animate-fade-in animation-delay-300 transition-transform duration-300 hover:-translate-y-1">
+                <p class="text-sm font-medium text-gray-500 dark:text-gray-400">قضايا معلقة</p>
+                <p class="mt-1 text-2xl font-semibold text-yellow-600 dark:text-yellow-400">{{ caseStats().pending }}</p>
+              </div>
+              <div class="bg-white dark:bg-gray-800 p-5 rounded-xl shadow animate-fade-in animation-delay-400 transition-transform duration-300 hover:-translate-y-1">
+                <p class="text-sm font-medium text-gray-500 dark:text-gray-400">قضايا مغلقة</p>
+                <p class="mt-1 text-2xl font-semibold text-gray-600 dark:text-gray-300">{{ caseStats().closed }}</p>
+              </div>
+            </div>
+    
+            <!-- Filters and Actions -->
+            <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+              <div class="relative w-full md:w-1/3">
+                <input type="text" placeholder="بحث (رقم الملف, الموكل, الخصم...)"
+                  class="w-full pl-10 pr-4 py-2 border rounded-lg bg-white dark:bg-gray-700 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                  [ngModel]="searchTerm()" (ngModelChange)="searchTerm.set($event)">
+                <svg class="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" /></svg>
+              </div>
+              <div class="flex items-center gap-4 w-full md:w-auto">
+                <select class="w-full md:w-auto px-4 py-2 border rounded-lg bg-white dark:bg-gray-700 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                  [ngModel]="statusFilter()" (ngModelChange)="statusFilter.set($event)">
+                  <option value="all">كل الحالات</option>
+                  <option value="مفتوحة">مفتوحة</option>
+                  <option value="قيد التنفيذ">قيد التنفيذ</option>
+                  <option value="معلقة">معلقة</option>
+                  <option value="مغلقة">مغلقة</option>
+                </select>
+                <button (click)="openAddForm()" class="flex items-center justify-center gap-2 px-4 py-2 text-white bg-primary-600 hover:bg-primary-700 rounded-lg shadow transition-all duration-200 transform hover:scale-105">
+                  <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
+                  <span>إضافة قضية</span>
+                </button>
+              </div>
+            </div>
+            
+            <!-- Cases Table -->
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow overflow-hidden">
+              <div class="overflow-x-auto">
+                <table class="w-full text-sm text-right text-gray-500 dark:text-gray-400">
+                  <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-300">
+                    <tr>
+                      <th scope="col" class="px-6 py-3">رقم الملف</th>
+                      <th scope="col" class="px-6 py-3">الموكل</th>
+                      <th scope="col" class="px-6 py-3">الخصم</th>
+                      <th scope="col" class="px-6 py-3">المحامي المسؤول</th>
+                      <th scope="col" class="px-6 py-3">آخر تحديث</th>
+                      <th scope="col" class="px-6 py-3">الحالة</th>
+                      <th scope="col" class="px-6 py-3">إجراء</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (caseItem of filteredCases(); track caseItem.id) {
+                      <tr class="bg-white dark:bg-gray-800 border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors duration-200">
+                        <td class="px-6 py-4 font-medium text-gray-900 dark:text-white">{{ caseItem.id }}</td>
+                        <td class="px-6 py-4">{{ caseItem.clientName }}</td>
+                        <td class="px-6 py-4">{{ caseItem.opponentName }}</td>
+                        <td class="px-6 py-4">{{ caseItem.assignedLawyer }}</td>
+                        <td class="px-6 py-4">{{ caseItem.lastUpdate }}</td>
+                        <td class="px-6 py-4">
+                          <span class="px-2 py-1 text-xs font-medium rounded-full" [class]="getStatusClass(caseItem.status)">
+                            {{ caseItem.status }}
+                          </span>
+                        </td>
+                        <td class="px-6 py-4">
+                          <button (click)="editCase(caseItem)" class="font-medium text-primary-600 dark:text-primary-500 hover:underline">
+                            عرض/تعديل
+                          </button>
+                        </td>
+                      </tr>
+                    } @empty {
+                      <tr>
+                        <td colspan="7" class="px-6 py-12 text-center text-gray-500 dark:text-gray-400">
+                          <p class="text-lg">لا توجد قضايا تطابق معايير البحث.</p>
+                          <p class="text-sm">حاول تغيير الفلاتر أو إضافة قضية جديدة.</p>
+                        </td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        }
+      }
+      @case ('sessions') {
+        <app-sessions-roll></app-sessions-roll>
+      }
+      @case ('convert') {
+        <div class="space-y-6 bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md animate-fade-in-up">
+          <div class="pb-4 border-b border-gray-200 dark:border-gray-700">
+              <h3 class="text-xl font-bold">تحويل نوع الملف</h3>
+              <p class="text-gray-500 dark:text-gray-400 mt-1">تحويل قضية أو ملف من نوع إلى آخر مع إنشاء سجل جديد.</p>
+          </div>
+          <form [formGroup]="conversionForm" (ngSubmit)="onConvertSubmit()" class="max-w-2xl mx-auto space-y-6">
+              <div>
+                  <label for="sourceCaseId" class="block text-sm font-medium mb-1">الملف المصدر <span class="text-red-500">*</span></label>
+                  <select id="sourceCaseId" formControlName="sourceCaseId" class="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600">
+                      <option [ngValue]="null" disabled>-- اختر الملف المراد تحويله --</option>
+                      @for(caseItem of cases(); track caseItem.id) {
+                          <option [value]="caseItem.id">{{ caseItem.id }} - {{ caseItem.subject }}</option>
+                      }
+                  </select>
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                      <label for="newCaseType" class="block text-sm font-medium mb-1">نوع الملف الجديد <span class="text-red-500">*</span></label>
+                      <select id="newCaseType" formControlName="newCaseType" class="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600">
+                          @for(caseType of caseTypes(); track caseType) {
+                              <option [value]="caseType">{{ caseType }}</option>
+                          }
+                      </select>
+                  </div>
+                  <div>
+                      <label for="newCaseNumber" class="block text-sm font-medium mb-1">رقم الملف الجديد <span class="text-red-500">*</span></label>
+                      <input type="text" id="newCaseNumber" formControlName="newCaseNumber" placeholder="أدخل الرقم الجديد" class="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600">
+                  </div>
+              </div>
+              
+              <div>
+                  <label class="block text-sm font-medium mb-2">إجراء على الملف الأصلي <span class="text-red-500">*</span></label>
+                  <div class="flex items-center gap-6">
+                      <label class="flex items-center gap-2 cursor-pointer">
+                          <input type="radio" value="archive" formControlName="originalFileAction" class="form-radio text-primary-600">
+                          <span>أرشفة الملف الأصلي</span>
+                      </label>
+                      <label class="flex items-center gap-2 cursor-pointer">
+                          <input type="radio" value="keep_active" formControlName="originalFileAction" class="form-radio text-primary-600">
+                          <span>إبقاء الملف الأصلي فعالاً</span>
+                      </label>
+                  </div>
+              </div>
+
+              <div class="pt-4 border-t border-gray-200 dark:border-gray-700 flex justify-end">
+                  <button type="submit" [disabled]="conversionForm.invalid" class="flex items-center justify-center gap-2 px-6 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-all duration-200 shadow-md hover:shadow-lg disabled:bg-gray-400 disabled:cursor-not-allowed">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m-15.357-2a8.001 8.001 0 0115.357-2m0 0H15" /></svg>
+                      <span>تنفيذ التحويل</span>
+                  </button>
+              </div>
+          </form>
+        </div>
+      }
+      @case ('linked') {
+        <div class="space-y-6 bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md animate-fade-in-up">
+          <div class="pb-4 border-b border-gray-200 dark:border-gray-700">
+              <h3 class="text-xl font-bold">ربط الملفات ذات الصلة</h3>
+              <p class="text-gray-500 dark:text-gray-400 mt-1">اختر قضية رئيسية ثم أضف القضايا الأخرى المرتبطة بها.</p>
+          </div>
+          <form [formGroup]="linkingForm" (ngSubmit)="onLinkSubmit()" class="max-w-3xl mx-auto space-y-6">
+            <div>
+              <label for="mainCaseId" class="block text-sm font-medium mb-1">الملف الرئيسي <span class="text-red-500">*</span></label>
+              <select id="mainCaseId" formControlName="mainCaseId" class="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600">
+                <option [ngValue]="null" disabled>-- اختر الملف الرئيسي --</option>
+                @for(caseItem of cases(); track caseItem.id) {
+                  <option [value]="caseItem.id" [disabled]="selectedLinkIds().has(caseItem.id) && caseItem.id !== linkingForm.get('mainCaseId')?.value">{{ caseItem.id }} - {{ caseItem.subject }}</option>
+                }
+              </select>
+            </div>
+            
+            <div formArrayName="casesToLink" class="space-y-3">
+              <label class="block text-sm font-medium">الملفات المراد ربطها <span class="text-red-500">*</span></label>
+              @for (control of casesToLink.controls; track $index) {
+                <div class="flex items-center gap-2">
+                  <select [formControlName]="$index" class="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600">
+                    <option [ngValue]="null" disabled>-- اختر ملف للربط --</option>
+                    @for(caseItem of cases(); track caseItem.id) {
+                      <option [value]="caseItem.id" [disabled]="selectedLinkIds().has(caseItem.id) && caseItem.id !== control.value">{{ caseItem.id }} - {{ caseItem.subject }}</option>
+                    }
+                  </select>
+                  <button type="button" (click)="removeCaseToLink($index)" class="p-2 text-red-500 hover:bg-red-100 dark:hover:bg-red-900/40 rounded-full">
+                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                  </button>
+                </div>
+              }
+              <button type="button" (click)="addCaseToLink()" class="flex items-center gap-2 px-3 py-2 text-sm bg-gray-100 dark:bg-gray-700 rounded-md hover:bg-gray-200 dark:hover:bg-gray-600">
+                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" /></svg>
+                 إضافة ملف آخر للربط
+              </button>
+            </div>
+
+            <div class="pt-4 border-t border-gray-200 dark:border-gray-700 flex justify-end">
+              <button type="submit" [disabled]="linkingForm.invalid" class="flex items-center justify-center gap-2 px-6 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-all duration-200 shadow-md hover:shadow-lg disabled:bg-gray-400 disabled:cursor-not-allowed">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" /></svg>
+                <span>حفظ الربط</span>
+              </button>
+            </div>
+          </form>
+        </div>
+      }
+    }
+  </div>
+</div>

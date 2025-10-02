@@ -1,0 +1,46 @@
+<div 
+  class="border-2 border-dashed rounded-lg p-6 text-center transition-colors"
+  [class.border-primary-500]="isDragOver()"
+  [class.bg-primary-50]="isDragOver()"
+  [class.dark:bg-gray-700]="isDragOver()"
+  [class.border-gray-300]="!isDragOver()"
+  [class.dark:border-gray-600]="!isDragOver()"
+  (dragover)="onDragOver($event)"
+  (dragleave)="onDragLeave($event)"
+  (drop)="onDrop($event)">
+  
+  <div class="flex flex-col items-center justify-center">
+    <svg class="w-10 h-10 mb-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
+        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"/>
+    </svg>
+    <p class="mb-2 text-sm text-gray-500 dark:text-gray-400">
+      <span class="font-semibold text-primary-600 dark:text-primary-400 cursor-pointer" (click)="fileInput.click()">اسحب وأفلت الملفات هنا</span> أو انقر للتصفح
+    </p>
+    <p class="text-xs text-gray-500 dark:text-gray-400">PDF, DOCX, JPG, PNG (بحد أقصى 10 ميجابايت)</p>
+  </div>
+  <input type="file" class="hidden" multiple (change)="onFileSelected($event)" #fileInput>
+</div>
+
+@if (selectedFiles().length > 0) {
+  <div class="mt-4 border rounded-lg overflow-hidden dark:border-gray-600">
+    <div class="p-2 bg-gray-50 dark:bg-gray-700/50">
+      <h4 class="text-sm font-medium text-gray-700 dark:text-gray-300">الملفات المرفقة ({{ selectedFiles().length }})</h4>
+    </div>
+    <ul class="divide-y dark:divide-gray-600">
+      @for (file of selectedFiles(); track file.name + file.size) {
+        <li class="flex items-center justify-between p-3 text-sm">
+          <div class="flex items-center gap-3 overflow-hidden">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+            <span class="truncate font-medium text-gray-800 dark:text-gray-200" [title]="file.name">{{ file.name }}</span>
+          </div>
+          <div class="flex items-center gap-3">
+            <span class="text-gray-500 text-xs flex-shrink-0">({{ formatBytes(file.size) }})</span>
+            <button (click)="removeFile(file)" class="text-red-500 hover:text-red-700 p-1 rounded-full hover:bg-red-100 dark:hover:bg-red-900/50">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+            </button>
+          </div>
+        </li>
+      }
+    </ul>
+  </div>
+}

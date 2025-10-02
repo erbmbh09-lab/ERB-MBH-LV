@@ -1,0 +1,399 @@
+<form [formGroup]="caseForm" (ngSubmit)="saveAndClose()" class="space-y-6 animate-fade-in-down">
+  <!-- Header -->
+  <div class="flex justify-between items-center">
+    <div>
+      <h2 class="text-2xl font-bold text-gray-800 dark:text-white">{{ isEditMode() ? 'تعديل ملف قضية' : 'إضافة ملف قضية' }}</h2>
+      <p class="text-sm text-gray-500 dark:text-gray-400">{{ isEditMode() ? 'تعديل التفاصيل أدناه.' : 'أدخل التفاصيل لإنشاء ملف قضية جديد' }}</p>
+    </div>
+    <button type="button" (click)="closeForm()" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+    </button>
+  </div>
+  
+  <!-- Stepper Navigation -->
+  <div class="border-b border-gray-200 dark:border-gray-700">
+    <nav class="flex space-x-4 sm:space-x-8 rtl:space-x-reverse overflow-x-auto pb-2">
+      @for(step of steps; track step.id) {
+        <button 
+          type="button"
+          (click)="goToStep(step.id)"
+          class="flex flex-col items-center gap-2 px-2 py-2 text-sm font-medium whitespace-nowrap"
+          [class.text-primary-600]="currentStep() === step.id"
+          [class.dark:text-primary-400]="currentStep() === step.id"
+          [class.text-gray-500]="currentStep() !== step.id"
+          [class.dark:text-gray-400]="currentStep() !== step.id"
+          [class.hover:text-primary-500]="true"
+          [class.dark:hover:text-primary-300]="true"
+          >
+          <span 
+            class="w-8 h-8 rounded-full flex items-center justify-center border-2 transition-colors duration-300"
+            [class.bg-primary-600]="currentStep() === step.id"
+            [class.border-primary-600]="currentStep() === step.id"
+            [class.text-white]="currentStep() === step.id"
+            [class.border-gray-400]="currentStep() !== step.id"
+            [class.dark:border-gray-600]="currentStep() !== step.id"
+            [class.bg-white]="currentStep() !== step.id"
+            [class.dark:bg-gray-800]="currentStep() !== step.id"
+            [class.text-gray-500]="currentStep() !== step.id"
+            [class.dark:text-gray-400]="currentStep() !== step.id"
+            >
+            {{ step.id }}
+          </span>
+          <span class="mt-1 hidden sm:inline">{{ step.title }}</span>
+        </button>
+      }
+    </nav>
+  </div>
+
+  <!-- Form Content -->
+  <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-5 min-h-[50vh]">
+      @switch (currentStep()) {
+        @case (1) { <!-- Basic Info -->
+          <div formGroupName="basicInfo" class="space-y-4 animate-fade-in">
+            <div class="flex gap-4 flex-wrap">
+              <button (click)="toggleLinkCounterClaim()" type="button" class="px-4 py-2 text-sm rounded-md border flex items-center gap-2 transition-colors" [class.bg-blue-100]="isLinkingCounterClaim()" [class.dark:bg-blue-900/50]="isLinkingCounterClaim()" [class.text-blue-700]="isLinkingCounterClaim()" [class.dark:text-blue-300]="isLinkingCounterClaim()" [class.border-blue-400]="isLinkingCounterClaim()" [class.border-gray-300]="!isLinkingCounterClaim()" [class.dark:border-gray-600]="!isLinkingCounterClaim()">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" /></svg>
+                <span>ربط دعوى مقابلة</span>
+              </button>
+              <button (click)="toggleImportant()" type="button" class="px-4 py-2 text-sm rounded-md border flex items-center gap-2 transition-colors" [class.bg-yellow-100]="isImportant()" [class.dark:bg-yellow-900/50]="isImportant()" [class.text-yellow-700]="isImportant()" [class.dark:text-yellow-300]="isImportant()" [class.border-yellow-400]="isImportant()" [class.border-gray-300]="!isImportant()" [class.dark:border-gray-600]="!isImportant()" [class.text-yellow-500]="!isImportant()">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="currentColor" viewBox="0 0 24" stroke="currentColor"><path d="M20.924 7.625a1.523 1.523 0 0 0-1.238-1.238l-5.404-.787-2.418-4.898a1.523 1.523 0 0 0-2.73 0l-2.418 4.898-5.404.787a1.523 1.523 0 0 0-1.238 1.238l.787 5.404L7.44 18.58a1.523 1.523 0 0 0 2.226 1.258l4.9-2.45 4.9 2.45a1.523 1.523 0 0 0 2.226-1.258l.787-5.404z" /></svg>
+                <span>قضية هامة</span>
+              </button>
+              <button (click)="toggleArchive()" type="button" class="px-4 py-2 text-sm rounded-md border flex items-center gap-2 transition-colors" [class.bg-gray-200]="isArchived()" [class.dark:bg-gray-600]="isArchived()" [class.border-gray-400]="isArchived()" [class.dark:border-gray-500]="isArchived()" [class.border-gray-300]="!isArchived()" [class.dark:border-gray-600]="!isArchived()">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" /></svg>
+                <span>{{ isArchived() ? 'إلغاء الأرشفة' : 'أرشفة القضية' }}</span>
+              </button>
+              <button (click)="toggleConfidential()" type="button" class="px-4 py-2 text-sm rounded-md border flex items-center gap-2 transition-colors" [class.bg-red-100]="isConfidential()" [class.dark:bg-red-900/50]="isConfidential()" [class.text-red-700]="isConfidential()" [class.dark:text-red-300]="isConfidential()" [class.border-red-400]="isConfidential()" [class.border-gray-300]="!isConfidential()" [class.dark:border-gray-600]="!isConfidential()">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" /></svg>
+                <span>ملف سري</span>
+              </button>
+            </div>
+             @if (isLinkingCounterClaim()) {
+              <div class="w-full pt-4 mt-4 border-t dark:border-gray-700 animate-fade-in-down">
+                <label class="block text-sm font-medium mb-1">رقم ملف الدعوى المقابلة</label>
+                <input type="text" [(ngModel)]="counterClaimId" [ngModelOptions]="{standalone: true}" placeholder="أدخل رقم الملف..." class="w-full md:w-1/2 p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600">
+              </div>
+            }
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 pt-4">
+              <div>
+                <label class="block text-sm font-medium mb-1">تصنيف القضية</label>
+                <div class="flex items-center gap-2">
+                  <select formControlName="classification" class="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600">
+                    @for(item of caseClassifications(); track item) {<option [value]="item">{{item}}</option>}
+                  </select>
+                  <button type="button" (click)="addOption('classification')" title="إضافة تصنيف جديد" class="flex-shrink-0 p-2 rounded-md bg-gray-200 dark:bg-gray-600 hover:bg-gray-300 dark:hover:bg-gray-500">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6m0 0v6m0-6h6m-6 0H6" /></svg>
+                  </button>
+                </div>
+              </div>
+              <div>
+                <label class="block text-sm font-medium mb-1">نوع القضية</label>
+                <div class="flex items-center gap-2">
+                  <select formControlName="caseType" class="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600">
+                    @for(item of caseTypes(); track item) {<option [value]="item">{{item}}</option>}
+                  </select>
+                  <button type="button" (click)="addOption('type')" title="إضافة نوع جديد" class="flex-shrink-0 p-2 rounded-md bg-gray-200 dark:bg-gray-600 hover:bg-gray-300 dark:hover:bg-gray-500">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6m0 0v6m0-6h6m-6 0H6" /></svg>
+                  </button>
+                </div>
+              </div>
+              <div>
+                <label class="block text-sm font-medium mb-1">الفرع المختص</label>
+                <div class="flex items-center gap-2">
+                  <select formControlName="branch" class="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600">
+                    @for(item of branches(); track item) {<option [value]="item">{{item}}</option>}
+                  </select>
+                   <button type="button" (click)="addOption('branch')" title="إضافة فرع جديد" class="flex-shrink-0 p-2 rounded-md bg-gray-200 dark:bg-gray-600 hover:bg-gray-300 dark:hover:bg-gray-500">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6m0 0v6m0-6h6m-6 0H6" /></svg>
+                  </button>
+                </div>
+              </div>
+              <div><label class="block text-sm font-medium mb-1">رقم الملف <span class="text-red-500">*</span></label><input type="text" formControlName="fileNumber" placeholder="e.g., DXB-2025-001" class="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 disabled:bg-gray-100 dark:disabled:bg-gray-700/50"></div>
+              <div class="md:col-span-2"><label class="block text-sm font-medium mb-1">Case Number <span class="text-red-500">*</span></label><input type="text" formControlName="caseNumber" class="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"></div>
+              <div class="md:col-span-2"><label class="block text-sm font-medium mb-1">تاريخ بدء القضية</label><input type="date" formControlName="startDate" class="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"></div>
+              <div class="md:col-span-4"><label class="block text-sm font-medium mb-1">الموضوع <span class="text-red-500">*</span></label><textarea formControlName="subject" placeholder="اكتب الموضوع الرئيسي للقضية..." rows="3" class="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"></textarea></div>
+              <div class="md:col-span-4"><label class="block text-sm font-medium mb-1">ملاحظات إضافية</label><textarea formControlName="notes" placeholder="اكتب أي ملاحظات إضافية هنا..." rows="3" class="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"></textarea></div>
+            </div>
+          </div>
+        }
+        @case (2) { <!-- Parties -->
+          <div formArrayName="parties" class="space-y-4 animate-fade-in">
+            @for (partyGroup of parties.controls; track $index) {
+              <div [formGroupName]="$index" class="grid grid-cols-1 md:grid-cols-5 gap-4 items-end p-4 border rounded-lg dark:border-gray-600 relative">
+                <div class="md:col-span-2"><label class="block text-sm font-medium mb-1">الاسم <span class="text-red-500">*</span></label><div class="flex items-center gap-2"><select formControlName="clientId" class="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"><option [ngValue]="null" disabled>-- اختر طرف --</option>@for(client of allClients(); track client.id) {<option [ngValue]="client.id">{{ client.nameAr }} ({{ client.classification }})</option>}</select><button (click)="openAddPartyModal()" type="button" title="إضافة طرف جديد" class="flex-shrink-0 p-2 rounded-md bg-gray-200 dark:bg-gray-600 hover:bg-gray-300 dark:hover:bg-gray-500"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6m0 0v6m0-6h6m-6 0H6" /></svg></button></div></div>
+                <div><label class="block text-sm font-medium mb-1">الصفة</label><select formControlName="capacity" class="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"><option selected disabled>اختر الصفة</option><option value="client">عميل (موكل)</option><option value="opponent">خصم</option></select></div>
+                @if (parties.controls.length > 1) {<button type="button" (click)="removeParty($index)" title="إزالة الطرف" class="text-red-500 hover:text-red-700 p-2 rounded-full hover:bg-red-100 dark:hover:bg-red-900/50"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg></button>}
+              </div>
+            }
+            <button type="button" (click)="addParty()" class="flex items-center gap-2 px-3 py-2 text-sm bg-gray-100 dark:bg-gray-700 rounded-md hover:bg-gray-200 dark:hover:bg-gray-600"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" /></svg>إضافة طرف</button>
+          </div>
+        }
+        @case (3) { <!-- Memos -->
+          <div formArrayName="memos" class="space-y-6 animate-fade-in">
+            @for (memoGroup of memos.controls; track $index) {
+              <div [formGroupName]="$index" class="space-y-4 p-4 border rounded-lg dark:border-gray-600 relative bg-gray-50 dark:bg-gray-800/50">
+                <div class="flex justify-between items-center"><h4 class="font-semibold">مذكرة #{{$index + 1}}</h4>@if (memos.controls.length > 1) {<button type="button" (click)="removeMemo($index)" title="إزالة المذكرة" class="text-red-500 p-2 rounded-full hover:bg-red-100 dark:hover:bg-red-900/50"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg></button>}</div>
+                <div><label [for]="'memo-title-' + $index" class="block text-sm font-medium mb-1">عنوان المذكرة</label><input type="text" [id]="'memo-title-' + $index" formControlName="title" class="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"></div>
+                <div><label [for]="'memo-content-' + $index" class="block text-sm font-medium mb-1">نص المذكرة</label><textarea [id]="'memo-content-' + $index" formControlName="content" rows="6" class="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"></textarea></div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label [for]="'memo-status-' + $index" class="block text-sm font-medium mb-1">حالة المذكرة</label>
+                    <select [id]="'memo-status-' + $index" formControlName="status" (change)="onMemoStatusChange(memoGroup, $event.target.value)" class="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600">
+                      <option value="draft">مسودة</option>
+                      <option value="pending_approval">بانتظار الموافقة</option>
+                      <option value="approved">تمت الموافقة</option>
+                      <option value="rejected">مرفوضة</option>
+                      <option value="submitted">مقدمة للمحكمة</option>
+                    </select>
+                  </div>
+                  <div><label [for]="'memo-deadline-' + $index" class="block text-sm font-medium mb-1">تاريخ التقديم النهائي</label><input type="date" [id]="'memo-deadline-' + $index" formControlName="deadline" class="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"></div>
+                </div>
+                 <div>
+                  <label [for]="'memo-manager-notes-' + $index" class="block text-sm font-medium mb-1">ملاحظات المدير</label>
+                  <textarea [id]="'memo-manager-notes-' + $index" formControlName="managerNotes" rows="3" class="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 disabled:bg-gray-100 dark:disabled:bg-gray-700/50" placeholder="أضف ملاحظات للمراجعة هنا..."></textarea>
+                </div>
+                <div>
+                  <label class="block text-sm font-medium mb-1">مرفقات المذكرة</label>
+                  <app-file-upload></app-file-upload>
+                </div>
+              </div>
+            }
+            <button type="button" (click)="addMemo()" class="mt-4 flex items-center gap-2 px-3 py-2 text-sm bg-gray-100 dark:bg-gray-700 rounded-md hover:bg-gray-200 dark:hover:bg-gray-600"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" /></svg>إضافة مذكرة جديدة</button>
+          </div>
+        }
+        @case (4) { <!-- Courts & Police -->
+          <div formGroupName="courtsPolice" class="animate-fade-in">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <label class="block text-sm font-medium mb-1">مركز الشرطة</label>
+                  <div class="flex items-center gap-2">
+                    <select formControlName="policeStation" class="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600">
+                      <option value="" disabled>اختر</option>
+                      @for(item of policeStations(); track item) {<option [value]="item">{{item}}</option>}
+                    </select>
+                    <button type="button" (click)="addOption('policeStation')" title="إضافة مركز جديد" class="flex-shrink-0 p-2 rounded-md bg-gray-200 dark:bg-gray-600 hover:bg-gray-300 dark:hover:bg-gray-500">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6m0 0v6m0-6h6m-6 0H6" /></svg>
+                    </button>
+                  </div>
+                </div>
+                <div>
+                  <label class="block text-sm font-medium mb-1">النيابة</label>
+                  <div class="flex items-center gap-2">
+                    <select formControlName="prosecution" class="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600">
+                      <option value="" disabled>اختر</option>
+                      @for(item of prosecutions(); track item) {<option [value]="item">{{item}}</option>}
+                    </select>
+                    <button type="button" (click)="addOption('prosecution')" title="إضافة نيابة جديدة" class="flex-shrink-0 p-2 rounded-md bg-gray-200 dark:bg-gray-600 hover:bg-gray-300 dark:hover:bg-gray-500">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6m0 0v6m0-6h6m-6 0H6" /></svg>
+                    </button>
+                  </div>
+                </div>
+                <div>
+                  <label class="block text-sm font-medium mb-1">المحكمة</label>
+                  <div class="flex items-center gap-2">
+                    <select formControlName="court" class="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600">
+                      <option value="" disabled>اختر</option>
+                      @for(item of courts(); track item) {<option [value]="item">{{item}}</option>}
+                    </select>
+                    <button type="button" (click)="addOption('court')" title="إضافة محكمة جديدة" class="flex-shrink-0 p-2 rounded-md bg-gray-200 dark:bg-gray-600 hover:bg-gray-300 dark:hover:bg-gray-500">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6m0 0v6m0-6h6m-6 0H6" /></svg>
+                    </button>
+                  </div>
+                </div>
+            </div>
+          </div>
+        }
+        @case (5) { <!-- File Team -->
+          <div formGroupName="fileTeam" class="animate-fade-in">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div><label class="block text-sm font-medium mb-1">المحامي</label><select formControlName="lawyer" class="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"><option value="" disabled>اختر</option>@for(emp of lawyers(); track emp.id) {<option [value]="emp.name">{{ emp.name }}</option>}</select></div>
+                <div><label class="block text-sm font-medium mb-1">مستشار قانوني</label><select formControlName="legalConsultant" class="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"><option value="" disabled>اختر</option>@for(emp of consultants(); track emp.id) {<option [value]="emp.name">{{ emp.name }}</option>}</select></div>
+                <div><label class="block text-sm font-medium mb-1">باحث قانوني</label><select formControlName="legalResearcher" class="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"><option value="" disabled>اختر</option>@for(emp of researchers(); track emp.id) {<option [value]="emp.name">{{ emp.name }}</option>}</select></div>
+                <div><label class="block text-sm font-medium mb-1">السكرتير</label><select formControlName="secretary" class="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"><option value="" disabled>اختر</option>@for(emp of secretaries(); track emp.id) {<option [value]="emp.name">{{ emp.name }}</option>}</select></div>
+            </div>
+          </div>
+        }
+        @case (6) { <!-- Litigation Stages -->
+          <div class="space-y-6 animate-fade-in">
+            <!-- Litigation Stages -->
+            <div formArrayName="litigationStages" class="overflow-x-auto p-1">
+              <h4 class="font-semibold mb-2">مراحل التقاضي</h4>
+              <table class="w-full min-w-[1100px]">
+                <thead><tr class="border-b dark:border-gray-600 text-sm text-gray-500"><th class="p-2 text-right">الدرجة</th><th class="p-2 text-right">رقم القضية</th><th class="p-2 text-right">السنة</th><th class="p-2 text-right">صفة العميل</th><th class="p-2 text-right">تاريخ الإحالة</th><th class="p-2 text-right">المرفقات</th><th></th></tr></thead>
+                <tbody>
+                    @for (stageGroup of litigationStages.controls; track $index) {
+                        <tr [formGroupName]="$index" class="border-b dark:border-gray-700">
+                            <td class="p-2"><select formControlName="degree" class="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"><option value="ابتدائية">ابتدائية</option><option value="استئناف">استئناف</option><option value="تمييز">تمييز</option></select></td>
+                            <td class="p-2"><input type="text" formControlName="caseNumber" class="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"></td>
+                            <td class="p-2"><input type="text" formControlName="year" class="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"></td>
+                            <td class="p-2"><select formControlName="clientCapacity" class="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"><option value="مدعي">مدعي</option><option value="مدعى عليه">مدعى عليه</option></select></td>
+                            <td class="p-2"><input type="date" formControlName="referralDate" class="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"></td>
+                            <td class="p-2 w-1/3"><app-file-upload></app-file-upload></td>
+                            <td class="p-2"><button type="button" (click)="removeLitigationStage($index)" title="إزالة" class="text-red-500 hover:text-red-700 p-2"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg></button></td>
+                        </tr>
+                    }
+                </tbody>
+              </table>
+              <button type="button" (click)="addLitigationStage()" class="mt-4 flex items-center gap-2 px-3 py-2 text-sm bg-gray-100 dark:bg-gray-700 rounded-md hover:bg-gray-200 dark:hover:bg-gray-600">+ إضافة مرحلة</button>
+            </div>
+            
+            <!-- Judicial Announcements -->
+            <div formArrayName="judicialAnnouncements" class="overflow-x-auto p-1 border-t pt-6 dark:border-gray-700">
+              <h4 class="font-semibold mb-2">الإعلانات القضائية</h4>
+              <table class="w-full min-w-[1100px]">
+                <thead><tr class="border-b dark:border-gray-600 text-sm text-gray-500"><th class="p-2 text-right">العنوان</th><th class="p-2 text-right">تاريخ الإصدار</th><th class="p-2 text-right">المدة القانونية (أيام)</th><th class="p-2 text-right">المرفقات</th><th></th></tr></thead>
+                <tbody>
+                  @for (announcement of judicialAnnouncements.controls; track $index) {
+                    <tr [formGroupName]="$index" class="border-b dark:border-gray-700">
+                      <td class="p-2"><input type="text" formControlName="title" class="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"></td>
+                      <td class="p-2"><input type="date" formControlName="issueDate" class="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"></td>
+                      <td class="p-2"><input type="text" formControlName="legalPeriod" class="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"></td>
+                      <td class="p-2 w-1/3"><app-file-upload></app-file-upload></td>
+                      <td class="p-2"><button type="button" (click)="removeJudicialAnnouncement($index)" title="إزالة" class="text-red-500 hover:text-red-700 p-2"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg></button></td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+              <button type="button" (click)="addJudicialAnnouncement()" class="mt-4 flex items-center gap-2 px-3 py-2 text-sm bg-gray-100 dark:bg-gray-700 rounded-md hover:bg-gray-200 dark:hover:bg-gray-600">+ إضافة إعلان قضائي</button>
+            </div>
+            
+            <!-- Petition Orders -->
+            <div formArrayName="petitionOrders" class="overflow-x-auto p-1 border-t pt-6 dark:border-gray-700">
+              <h4 class="font-semibold mb-2">أمر على عريضة</h4>
+              <table class="w-full min-w-[1100px]">
+                <thead><tr class="border-b dark:border-gray-600 text-sm text-gray-500"><th class="p-2 text-right">تاريخ التقديم</th><th class="p-2 text-right">نوع الأمر</th><th class="p-2 text-right">قرار القاضي</th><th class="p-2 text-right">المدة القانونية (أيام)</th><th class="p-2 text-right">المرفقات</th><th></th></tr></thead>
+                <tbody>
+                  @for (order of petitionOrders.controls; track $index) {
+                    <tr [formGroupName]="$index" class="border-b dark:border-gray-700">
+                      <td class="p-2"><input type="date" formControlName="submissionDate" class="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"></td>
+                      <td class="p-2"><input type="text" formControlName="orderType" class="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"></td>
+                      <td class="p-2"><select formControlName="judgeDecision" class="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"><option value="accepted">مقبول</option><option value="rejected">مرفوض</option><option value="pending">قيد النظر</option></select></td>
+                      <td class="p-2"><input type="text" formControlName="legalPeriod" class="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"></td>
+                      <td class="p-2 w-1/3"><app-file-upload></app-file-upload></td>
+                      <td class="p-2"><button type="button" (click)="removePetitionOrder($index)" title="إزالة" class="text-red-500 hover:text-red-700 p-2"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg></button></td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+              <button type="button" (click)="addPetitionOrder()" class="mt-4 flex items-center gap-2 px-3 py-2 text-sm bg-gray-100 dark:bg-gray-700 rounded-md hover:bg-gray-200 dark:hover:bg-gray-600">+ إضافة أمر على عريضة</button>
+            </div>
+          </div>
+        }
+        @case (7) { <!-- Hearings -->
+            <div class="animate-fade-in">
+                <div formArrayName="hearings" class="overflow-x-auto">
+                    <h4 class="font-semibold mb-2">الجلسات</h4>
+                    <table class="w-full min-w-[1200px]">
+                        <thead><tr class="border-b dark:border-gray-600 text-sm text-gray-500"><th class="p-2 text-right">تاريخ ووقت الجلسة</th><th class="p-2 text-right">القرار</th><th class="p-2 text-right">الملاحظات</th><th class="p-2 text-right">الحالة</th><th class="p-2 text-right">المرفقات</th><th></th></tr></thead>
+                        <tbody>
+                          @for (hearing of hearings.controls; track $index) {
+                            <tr [formGroupName]="$index" class="border-b dark:border-gray-700">
+                                <td class="p-2"><input type="datetime-local" formControlName="dateTime" class="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"></td>
+                                <td class="p-2"><textarea rows="1" formControlName="decision" class="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"></textarea></td>
+                                <td class="p-2"><textarea rows="1" formControlName="notes" class="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"></textarea></td>
+                                <td class="p-2">
+                                  <div class="space-y-2">
+                                    <label class="flex items-center gap-2 text-xs cursor-pointer">
+                                      <input type="checkbox" formControlName="reservedForJudgment" (change)="onReservedChange(hearing, $event.target.checked)" class="form-checkbox h-4 w-4 rounded text-primary-600 focus:ring-primary-500">
+                                      <span>محجوزة للحكم</span>
+                                    </label>
+                                    <label class="flex items-center gap-2 text-xs cursor-pointer" [class.opacity-50]="!hearing.get('reservedForJudgment')?.value">
+                                      <input type="checkbox" formControlName="judgmentPostponed" [disabled]="!hearing.get('reservedForJudgment')?.value" class="form-checkbox h-4 w-4 rounded text-primary-600 focus:ring-primary-500">
+                                      <span>مد أجل الحكم</span>
+                                    </label>
+                                  </div>
+                                </td>
+                                <td class="p-2 w-1/4"><app-file-upload></app-file-upload></td>
+                                <td class="p-2"><button type="button" (click)="removeHearing($index)" title="إزالة" class="text-red-500 hover:text-red-700 p-2"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg></button></td>
+                            </tr>
+                          }
+                        </tbody>
+                    </table>
+                    <button type="button" (click)="addHearing()" class="mt-4 flex items-center gap-2 px-3 py-2 text-sm bg-gray-100 dark:bg-gray-700 rounded-md hover:bg-gray-200 dark:hover:bg-gray-600">+ إضافة جلسة</button>
+                </div>
+            </div>
+        }
+        @case (8) { <!-- Executions -->
+            <div class="animate-fade-in">
+                 <div formArrayName="executions" class="overflow-x-auto">
+                    <h4 class="font-semibold mb-2">التنفيذات</h4>
+                    <table class="w-full min-w-[800px]">
+                        <thead><tr class="border-b dark:border-gray-600 text-sm text-gray-500"><th class="p-2 text-right">التاريخ</th><th class="p-2 text-right">النوع</th><th class="p-2 text-right">الحالة</th><th class="p-2 text-right">المرفقات</th><th></th></tr></thead>
+                        <tbody>
+                            @for (execution of executions.controls; track $index) {
+                                <tr [formGroupName]="$index" class="border-b dark:border-gray-700">
+                                    <td class="p-2"><input type="date" formControlName="date" class="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"></td>
+                                    <td class="p-2"><input type="text" formControlName="type" class="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"></td>
+                                    <td class="p-2"><select formControlName="status" class="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"><option>قيد التنفيذ</option><option>منفذ</option></select></td>
+                                    <td class="p-2 w-1/3"><app-file-upload></app-file-upload></td>
+                                    <td class="p-2"><button type="button" (click)="removeExecution($index)" title="إزالة" class="text-red-500 hover:text-red-700 p-2"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg></button></td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                    <button type="button" (click)="addExecution()" class="mt-4 flex items-center gap-2 px-3 py-2 text-sm bg-gray-100 dark:bg-gray-700 rounded-md hover:bg-gray-200 dark:hover:bg-gray-600">+ إضافة تنفيذ</button>
+                </div>
+            </div>
+        }
+        @case (9) { <!-- Attachments & Review -->
+            <div class="animate-fade-in space-y-4">
+                <h4 class="font-semibold mb-2">المرفقات العامة</h4>
+                <app-file-upload></app-file-upload>
+                <div class="border-t pt-4 dark:border-gray-700">
+                    <h4 class="font-semibold mb-2">مراجعة وحفظ</h4>
+                    <p class="text-gray-600 dark:text-gray-400">لقد أكملت جميع الخطوات. يرجى مراجعة البيانات قبل الحفظ النهائي.</p>
+                </div>
+            </div>
+        }
+      }
+  </div>
+
+  <footer class="flex justify-between items-center gap-4 pt-4">
+    <div class="flex items-center gap-4">
+        <button (click)="closeForm()" type="button" class="px-6 py-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition">
+          إلغاء
+        </button>
+        <button (click)="openAddTaskModal()" type="button" class="flex items-center gap-2 px-4 py-2 text-sm bg-gray-100 dark:bg-gray-700 rounded-md hover:bg-gray-200 dark:hover:bg-gray-600">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5V3a2 2 0 012-2h2a2 2 0 012 2v2"></path></svg>
+            <span>إضافة مهمة ذات صلة</span>
+        </button>
+    </div>
+    <div class="flex items-center gap-4">
+      @if (currentStep() > 1) {
+        <button (click)="previousStep()" type="button" class="px-6 py-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition">
+          السابق
+        </button>
+      }
+      @if (currentStep() < steps.length) {
+        <button (click)="nextStep()" type="button" class="px-6 py-2 bg-primary-600 text-white font-semibold rounded-lg hover:bg-primary-700 transition">
+          التالي
+        </button>
+      } @else {
+        <button (click)="saveAndClose()" type="submit" class="px-6 py-2 bg-green-500 text-white font-semibold rounded-lg hover:bg-green-600 transition">
+          إنهاء وحفظ
+        </button>
+      }
+    </div>
+  </footer>
+
+  <!-- Add Party Modal -->
+  @if (isAddPartyModalVisible()) {
+    <div class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center animate-fade-in" (click)="closeAddPartyModal()">
+      <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-4xl flex flex-col transform transition-all duration-300 scale-95 animate-scale-in" (click)="$event.stopPropagation()">
+        <app-client-form 
+          (formSubmit)="onPartyFormSubmit($event)"
+          (formClose)="closeAddPartyModal()">
+        </app-client-form>
+      </div>
+    </div>
+  }
+  
+  <!-- Add Task Modal -->
+  @if (isAddTaskModalVisible()) {
+    <app-task-form 
+      [task]="null" 
+      [relatedCaseId]="caseForm.get('basicInfo.fileNumber')?.value"
+      (close)="closeAddTaskModal()">
+    </app-task-form>
+  }
+</form>

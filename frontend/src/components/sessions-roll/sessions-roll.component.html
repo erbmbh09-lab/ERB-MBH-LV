@@ -1,0 +1,293 @@
+<div class="space-y-6">
+  <!-- Header & Print Button -->
+  <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+    <div>
+      <h2 class="text-3xl font-bold text-gray-800 dark:text-white">رول الجلسات</h2>
+      <p class="mt-2 text-gray-500 dark:text-gray-400">عرض وبحث وتحديث جلسات القضايا المتداولة.</p>
+    </div>
+    <button (click)="printPage()" class="flex items-center gap-2 px-4 py-2 bg-secondary-500 text-white rounded-lg hover:bg-secondary-400 transition-colors shadow-md no-print">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm7-9a2 2 0 11-4 0 2 2 0 014 0z" />
+      </svg>
+      <span>طباعة</span>
+    </button>
+  </div>
+
+  <!-- Filter Section -->
+  <div class="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-md space-y-4 no-print">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div>
+        <label for="from-date" class="block text-sm font-medium text-gray-700 dark:text-gray-300">من تاريخ</label>
+        <input type="date" id="from-date" [ngModel]="fromDate()" (ngModelChange)="fromDate.set($event)" class="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm dark:bg-gray-700 dark:border-gray-600 focus:ring-primary-500 focus:border-primary-500">
+      </div>
+      <div>
+        <label for="to-date" class="block text-sm font-medium text-gray-700 dark:text-gray-300">الى تاريخ</label>
+        <input type="date" id="to-date" [ngModel]="toDate()" (ngModelChange)="toDate.set($event)" class="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm dark:bg-gray-700 dark:border-gray-600 focus:ring-primary-500 focus:border-primary-500">
+      </div>
+      <div>
+        <label for="court" class="block text-sm font-medium text-gray-700 dark:text-gray-300">المحكمة</label>
+        <select id="court" [ngModel]="selectedCourt()" (ngModelChange)="selectedCourt.set($event)" class="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm dark:bg-gray-700 dark:border-gray-600 focus:ring-primary-500 focus:border-primary-500">
+          <option value="all">كل المحاكم</option>
+          @for(court of courts(); track court) {
+            <option [value]="court">{{ court }}</option>
+          }
+        </select>
+      </div>
+      <div class="flex items-end gap-2">
+        <button (click)="setCurrentWeekFilter()" class="flex-1 w-full px-4 py-2 bg-primary-600 text-white font-semibold rounded-lg hover:bg-primary-700 transition-colors shadow-md">
+          الأسبوع الحالي
+        </button>
+        <button (click)="clearFilters()" title="مسح الفلاتر" class="px-4 py-2 bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-500">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sessions Table -->
+  <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-x-auto">
+    <div class="p-4 border-b dark:border-gray-700 flex justify-between items-center no-print">
+        <h3 class="text-lg font-bold">جلسات لتاريخ {{ toDate() || '...' }}</h3>
+        <span class="text-sm text-gray-500 dark:text-gray-400">
+            {{ filteredSessions().length }} جلسة
+        </span>
+    </div>
+    <table class="w-full text-right text-sm text-gray-500 dark:text-gray-400">
+      <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+        <tr>
+          <th scope="col" class="px-6 py-3">تسلسل</th>
+          <th scope="col" class="px-6 py-3">القضية</th>
+          <th scope="col" class="px-6 py-3">الموكل وصفته</th>
+          <th scope="col" class="px-6 py-3">الخصم وصفته</th>
+          <th scope="col" class="px-6 py-3">القرار السابق</th>
+          <th scope="col" class="px-6 py-3">قرار الجلسة</th>
+          <th scope="col" class="px-6 py-3">ملاحظات</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (session of filteredSessions(); track session.id; let i = $index) {
+          <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
+              [class.bg-orange-100]="session.reservedForJudgment && !session.judgmentPostponed"
+              [class.dark:bg-orange-900/50]="session.reservedForJudgment && !session.judgmentPostponed"
+              [class.bg-yellow-100]="session.judgmentPostponed || isPostponed(session)"
+              [class.dark:bg-yellow-900/50]="session.judgmentPostponed || isPostponed(session)">
+            <td class="px-6 py-4">
+               <button (click)="openCaseFileModal(session)" class="w-8 h-8 flex items-center justify-center font-bold text-primary-600 bg-primary-100 dark:bg-primary-900 dark:text-primary-300 rounded-full hover:bg-primary-200 dark:hover:bg-primary-800 transition-colors no-print">
+                {{ i + 1 }}
+              </button>
+              <span class="print:block hidden">{{ i + 1 }}</span>
+            </td>
+            <td class="px-6 py-4 font-medium text-gray-900 dark:text-white">
+                <div>{{ session.case.type }} - {{ session.case.number }}/{{ session.case.year }}</div>
+                <div class="text-xs text-gray-500">{{ session.case.court }}</div>
+                <div class="text-xs text-primary-500 font-bold">{{ session.sessionDate | date:'dd/MM/yyyy h:mm a' }}</div>
+            </td>
+            <td class="px-6 py-4">{{ session.client.name }} / <span class="font-semibold">{{ session.client.capacity }}</span></td>
+            <td class="px-6 py-4">{{ session.opponent.name }} / <span class="font-semibold">{{ session.opponent.capacity }}</span></td>
+            <td class="px-6 py-4 whitespace-pre-wrap max-w-xs">{{ session.previousDecision }}</td>
+            <td class="px-6 py-4">
+                <div class="flex items-center gap-2">
+                    <span class="flex-1 truncate max-w-24" [class.text-gray-400]="!session.sessionDecision">{{ session.sessionDecision || 'لم يضف' }}</span>
+                    <button (click)="openDecisionModal(session)" class="p-1.5 rounded-md hover:bg-primary-100 dark:hover:bg-primary-900/50 text-primary-600 dark:text-primary-400 no-print">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
+                    </button>
+                </div>
+            </td>
+            <td class="px-6 py-4">
+                 <div class="flex items-center gap-2">
+                    <span class="flex-1 truncate max-w-24" [class.text-gray-400]="!session.notes">{{ session.notes || 'لا يوجد' }}</span>
+                    <button (click)="openNotesModal(session)" class="p-1.5 rounded-md hover:bg-yellow-100 dark:hover:bg-yellow-900/50 text-yellow-600 dark:text-yellow-400 no-print">
+                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M7 8h10M7 12h4m1 8l-5-5h12l-5 5z" /></svg>
+                    </button>
+                </div>
+            </td>
+          </tr>
+        } @empty {
+          <tr>
+            <td colspan="7" class="px-6 py-12 text-center text-gray-500 dark:text-gray-400">
+              <p>لا توجد جلسات تطابق معايير البحث.</p>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Decision Modal -->
+@if (isDecisionModalVisible()) {
+  <div class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center animate-fade-in no-print" (click)="closeModals()">
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-lg flex flex-col transform animate-scale-in" (click)="$event.stopPropagation()">
+      <header class="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
+        <h3 class="text-lg font-bold">إضافة/تعديل قرار الجلسة</h3>
+        <button (click)="closeModals()" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+        </button>
+      </header>
+      <div class="p-6 space-y-4">
+        <div>
+          <label for="decision-text" class="block text-sm font-medium mb-2">نص القرار</label>
+          <textarea id="decision-text" [(ngModel)]="modalInputText" rows="3" class="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"></textarea>
+        </div>
+
+        <div class="space-y-2 border-t dark:border-gray-700 pt-4">
+            <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" 
+                       [ngModel]="isReservedForJudgment()" 
+                       (ngModelChange)="handleReservedChange($event)" 
+                       class="form-checkbox h-5 w-5 rounded text-primary-600 focus:ring-primary-500">
+                <span>حُجزت للحكم</span>
+            </label>
+            <label class="flex items-center gap-2 cursor-pointer" [class.opacity-50]="!isReservedForJudgment()" [class.cursor-not-allowed]="!isReservedForJudgment()">
+                <input type="checkbox" 
+                       [ngModel]="isJudgmentPostponed()" 
+                       (ngModelChange)="isJudgmentPostponed.set($event)" 
+                       [disabled]="!isReservedForJudgment()" 
+                       class="form-checkbox h-5 w-5 rounded text-primary-600 focus:ring-primary-500">
+                <span>مد اجل الحكم</span>
+            </label>
+        </div>
+
+        <div class="border-t border-gray-200 dark:border-gray-700 pt-4 space-y-4">
+            <h4 class="font-semibold">في حال تأجيل القرار</h4>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label for="postponement-date" class="block text-sm font-medium mb-1">تاريخ الجلسة القادمة</label>
+                    <input type="date" id="postponement-date" [ngModel]="postponementDate()" (ngModelChange)="postponementDate.set($event)" class="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600">
+                </div>
+                <div class="md:col-span-2">
+                     <label for="postponement-reason" class="block text-sm font-medium mb-1">سبب التأجيل</label>
+                     <textarea id="postponement-reason" [ngModel]="postponementReason()" (ngModelChange)="postponementReason.set($event)" rows="2" class="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"></textarea>
+                </div>
+            </div>
+        </div>
+      </div>
+      <footer class="flex justify-end gap-3 p-4 bg-gray-50 dark:bg-gray-800/50 border-t dark:border-gray-700">
+        <button (click)="closeModals()" class="px-4 py-2 rounded-md border dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700">إلغاء</button>
+        <button (click)="saveModalChanges()" class="px-4 py-2 rounded-md bg-primary-600 text-white hover:bg-primary-700">حفظ القرار</button>
+      </footer>
+    </div>
+  </div>
+}
+
+<!-- Notes Modal -->
+@if (isNotesModalVisible()) {
+  <div class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center animate-fade-in no-print" (click)="closeModals()">
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-lg flex flex-col transform animate-scale-in" (click)="$event.stopPropagation()">
+      <header class="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
+        <h3 class="text-lg font-bold">إضافة/تعديل الملاحظات</h3>
+        <button (click)="closeModals()" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+        </button>
+      </header>
+      <div class="p-6">
+        <label for="notes-text" class="block text-sm font-medium mb-2">نص الملاحظة</label>
+        <textarea id="notes-text" [(ngModel)]="modalInputText" rows="5" class="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"></textarea>
+      </div>
+      <footer class="flex justify-end gap-3 p-4 bg-gray-50 dark:bg-gray-800/50 border-t dark:border-gray-700">
+        <button (click)="closeModals()" class="px-4 py-2 rounded-md border dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700">إلغاء</button>
+        <button (click)="saveModalChanges()" class="px-4 py-2 rounded-md bg-primary-600 text-white hover:bg-primary-700">حفظ الملاحظات</button>
+      </footer>
+    </div>
+  </div>
+}
+
+<!-- Case File Modal -->
+@if (isCaseFileModalVisible()) {
+  <div class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center animate-fade-in printable-modal-area" (click)="closeModals()">
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-3xl flex flex-col transform animate-scale-in modal-content-print" (click)="$event.stopPropagation()">
+      <header class="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700 no-print">
+        <h3 class="text-lg font-bold">ملف القضية: {{ selectedCaseForFile()?.id }}</h3>
+        <button (click)="closeModals()" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+        </button>
+      </header>
+      <div class="p-6 overflow-y-auto max-h-[70vh]">
+        @if (selectedCaseForFile(); as caseFile) {
+          @if (selectedSession(); as session) {
+            <div class="space-y-6">
+
+              <!-- Linked Cases Section -->
+              @if (linkedCasesForModal().length > 0) {
+                <div class="mb-4 p-4 border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-700/50">
+                  <div class="flex items-center gap-2 mb-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-primary-500" fill="none" viewBox="0 0 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" /></svg>
+                    <h5 class="font-bold">الملفات المرتبطة</h5>
+                  </div>
+                  <div class="space-y-3 text-sm">
+                    <!-- Main Case -->
+                    <div class="grid grid-cols-12 gap-x-4 p-2 bg-white dark:bg-gray-800 rounded-md border dark:border-gray-600">
+                      <span class="col-span-12 sm:col-span-2 font-semibold text-gray-500 dark:text-gray-400">الملف الرئيسي:</span>
+                      <span class="col-span-12 sm:col-span-3 font-bold text-primary-600 dark:text-primary-400">{{ caseFile.id }}</span>
+                      <span class="col-span-12 sm:col-span-7">{{ caseFile.clientName }}</span>
+                    </div>
+                    <!-- Linked Cases -->
+                    @for (linkedCase of linkedCasesForModal(); track linkedCase.id; let i = $index) {
+                       <div class="grid grid-cols-12 gap-x-4 p-2 bg-white dark:bg-gray-800 rounded-md border dark:border-gray-600">
+                        <span class="col-span-12 sm:col-span-2 font-semibold text-gray-500 dark:text-gray-400">ملف مرتبط {{ i + 1 }}:</span>
+                        <span class="col-span-12 sm:col-span-3 font-bold">{{ linkedCase.id }}</span>
+                        <span class="col-span-12 sm:col-span-7">{{ linkedCase.clientName }}</span>
+                      </div>
+                    }
+                  </div>
+                </div>
+              }
+
+              <!-- Section 1: Basic Case Info -->
+              <div class="border dark:border-gray-700 rounded-lg">
+                <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-t-lg">
+                  <h4 class="font-bold">معلومات القضية الأساسية</h4>
+                </div>
+                <div class="p-4 grid grid-cols-2 md:grid-cols-4 gap-x-4 gap-y-3 text-sm">
+                  <div class="md:col-span-2"><span class="font-semibold text-gray-500 dark:text-gray-400">رقم القضية:</span> {{ caseFile.id }}</div>
+                  <div><span class="font-semibold text-gray-500 dark:text-gray-400">نوع القضية:</span> {{ caseFile.caseType }}</div>
+                  <div><span class="font-semibold text-gray-500 dark:text-gray-400">مرحلة التقاضي:</span> {{ caseFile.litigationStage }}</div>
+                  <div class="md:col-span-2"><span class="font-semibold text-gray-500 dark:text-gray-400">المحكمة:</span> {{ caseFile.court }}</div>
+                  <div class="md:col-span-2"><span class="font-semibold text-gray-500 dark:text-gray-400">المحامي المسؤول:</span> {{ caseFile.assignedLawyer }}</div>
+                  <div><span class="font-semibold text-gray-500 dark:text-gray-400">آخر تحديث:</span> {{ caseFile.lastUpdate | date:'dd/MM/yyyy' }}</div>
+                  <div>
+                    <span class="font-semibold text-gray-500 dark:text-gray-400">الحالة:</span> 
+                    <span class="px-2 py-1 rounded-full text-xs font-medium" [class.bg-green-100]="caseFile.status === 'مفتوحة'" [class.text-green-800]="caseFile.status === 'مفتوحة'" [class.bg-red-100]="caseFile.status === 'مغلقة'" [class.text-red-800]="caseFile.status === 'مغلقة'" [class.bg-yellow-100]="caseFile.status === 'معلقة'" [class.text-yellow-800]="caseFile.status === 'معلقة'" [class.bg-blue-100]="caseFile.status === 'قيد التنفيذ'" [class.text-blue-800]="caseFile.status === 'قيد التنفيذ'">
+                      {{ caseFile.status }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Section 2: Parties -->
+              <div class="border dark:border-gray-700 rounded-lg">
+                <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-t-lg"><h4 class="font-bold">الأطراف</h4></div>
+                <div class="p-4 grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                  <div><span class="font-semibold text-gray-500 dark:text-gray-400">الموكل:</span> {{ session.client.name }} ({{ session.client.capacity }})</div>
+                  <div><span class="font-semibold text-gray-500 dark:text-gray-400">الخصم:</span> {{ session.opponent.name }} ({{ session.opponent.capacity }})</div>
+                </div>
+              </div>
+
+              <!-- Section 3: Latest Session Info -->
+               <div class="border dark:border-gray-700 rounded-lg">
+                <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-t-lg"><h4 class="font-bold">آخر معلومات الجلسة</h4></div>
+                <div class="p-4 space-y-3 text-sm">
+                  <div><span class="font-semibold text-gray-500 dark:text-gray-400 block mb-1">تاريخ الجلسة:</span> <span class="font-bold text-primary-600 dark:text-primary-400">{{ session.sessionDate | date:'fullDate' }} - {{ session.sessionDate | date:'shortTime' }}</span></div>
+                  <div><span class="font-semibold text-gray-500 dark:text-gray-400 block mb-1">القرار السابق:</span> <p class="whitespace-pre-wrap bg-gray-100 dark:bg-gray-900/50 p-2 rounded-md">{{ session.previousDecision }}</p></div>
+                  <div><span class="font-semibold text-gray-500 dark:text-gray-400 block mb-1">قرار الجلسة الحالي:</span> <p class="whitespace-pre-wrap bg-gray-100 dark:bg-gray-900/50 p-2 rounded-md">{{ session.sessionDecision || 'لم يتم تسجيل قرار بعد' }}</p></div>
+                  <div><span class="font-semibold text-gray-500 dark:text-gray-400 block mb-1">ملاحظات:</span> <p class="whitespace-pre-wrap bg-gray-100 dark:bg-gray-900/50 p-2 rounded-md">{{ session.notes || 'لا توجد ملاحظات' }}</p></div>
+                </div>
+              </div>
+            </div>
+          }
+        }
+      </div>
+      <footer class="flex justify-end gap-3 p-4 bg-gray-50 dark:bg-gray-800/50 border-t dark:border-gray-700 no-print">
+        <button (click)="closeModals()" class="px-4 py-2 rounded-md border dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700">إغلاق</button>
+        <button (click)="printPage()" class="flex items-center gap-2 px-4 py-2 rounded-md bg-primary-600 text-white hover:bg-primary-700">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm7-9a2 2 0 11-4 0 2 2 0 014 0z" />
+          </svg>
+          طباعة الملف
+        </button>
+      </footer>
+    </div>
+  </div>
+}

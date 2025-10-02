@@ -1,0 +1,214 @@
+<div class="min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-200 p-4 sm:p-6 lg:p-8">
+  @if (loggedInClient(); as client) {
+    <div class="max-w-7xl mx-auto">
+      <!-- Header -->
+      <header class="flex flex-col sm:flex-row justify-between items-start sm:items-center p-4 bg-white dark:bg-gray-800 rounded-xl shadow-md border-b-4 border-primary-500">
+        <div>
+          <h1 class="text-2xl font-bold text-gray-800 dark:text-white">بوابة العميل</h1>
+          <p class="mt-1 text-gray-500 dark:text-gray-400">مرحباً بك، {{ client.nameAr }}</p>
+        </div>
+        <div class="flex items-center gap-4 mt-3 sm:mt-0">
+          <span class="text-sm">آخر دخول: {{ lastLoginDate | date:'medium' }}</span>
+          <a href="#" class="px-4 py-2 text-sm border rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">تسجيل الخروج</a>
+        </div>
+      </header>
+
+      <!-- Main Content -->
+      <main class="mt-8">
+        <!-- Tabs -->
+        <div class="border-b border-gray-200 dark:border-gray-700">
+          <nav class="-mb-px flex space-x-8 rtl:space-x-reverse" aria-label="Tabs">
+            <button (click)="activeTab.set('cases')" class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm flex items-center gap-2" [class.border-primary-500]="activeTab() === 'cases'" [class.text-primary-600]="activeTab() === 'cases'" [class.border-transparent]="activeTab() !== 'cases'" [class.text-gray-500]="activeTab() !== 'cases'">قضاياي</button>
+            <button (click)="activeTab.set('documents')" class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm" [class.border-primary-500]="activeTab() === 'documents'" [class.text-primary-600]="activeTab() === 'documents'" [class.border-transparent]="activeTab() !== 'documents'" [class.text-gray-500]="activeTab() !== 'documents'">المستندات</button>
+            <button (click)="activeTab.set('invoices')" class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm" [class.border-primary-500]="activeTab() === 'invoices'" [class.text-primary-600]="activeTab() === 'invoices'" [class.border-transparent]="activeTab() !== 'invoices'" [class.text-gray-500]="activeTab() !== 'invoices'">الفواتير</button>
+            <button (click)="activeTab.set('my-requests')" class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm" [class.border-primary-500]="activeTab() === 'my-requests'" [class.text-primary-600]="activeTab() === 'my-requests'" [class.border-transparent]="activeTab() !== 'my-requests'" [class.text-gray-500]="activeTab() !== 'my-requests'">طلباتي</button>
+            <button (click)="activeTab.set('contact')" class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm" [class.border-primary-500]="activeTab() === 'contact'" [class.text-primary-600]="activeTab() === 'contact'" [class.border-transparent]="activeTab() !== 'contact'" [class.text-gray-500]="activeTab() !== 'contact'">تواصل معنا</button>
+          </nav>
+        </div>
+        
+        <!-- Tab Content -->
+        <div class="mt-6">
+          @switch (activeTab()) {
+            @case ('cases') {
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                @for (caseItem of clientCases(); track caseItem.id) {
+                  <div class="bg-white dark:bg-gray-800 p-5 rounded-xl shadow-md space-y-3">
+                    <div class="flex justify-between items-start">
+                      <div>
+                        <p class="font-bold text-lg text-primary-600 dark:text-primary-400">{{ caseItem.id }}</p>
+                        <p class="text-sm text-gray-500">{{ caseItem.court }}</p>
+                      </div>
+                      <span class="px-2 py-1 text-xs font-medium rounded-full" [class]="getStatusClass(caseItem.status)">{{ caseItem.status }}</span>
+                    </div>
+                    <p class="font-semibold">{{ caseItem.subject }}</p>
+                    <div class="text-sm text-gray-600 dark:text-gray-400 border-t pt-3 dark:border-gray-700">
+                      <p><strong>الخصم:</strong> {{ caseItem.opponentName }}</p>
+                      <p><strong>المحامي المسؤول:</strong> {{ caseItem.assignedLawyer }}</p>
+                      <p><strong>آخر تحديث:</strong> {{ caseItem.lastUpdate | date:'longDate' }}</p>
+                    </div>
+                    <div class="text-right">
+                      <button (click)="openCaseModal(caseItem)" class="text-primary-600 hover:underline font-medium text-sm">عرض التفاصيل</button>
+                    </div>
+                  </div>
+                } @empty {
+                  <p class="md:col-span-2 text-center py-10 text-gray-500">لا توجد قضايا لعرضها.</p>
+                }
+              </div>
+            }
+            @case ('documents') {
+               <div class="bg-white dark:bg-gray-800 rounded-xl shadow overflow-hidden">
+                <div class="overflow-x-auto">
+                  <table class="w-full text-sm text-right text-gray-500 dark:text-gray-400">
+                    <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-300">
+                      <tr>
+                        <th scope="col" class="px-6 py-3">اسم المستند</th>
+                        <th scope="col" class="px-6 py-3">القضية</th>
+                        <th scope="col" class="px-6 py-3">تاريخ الرفع</th>
+                        <th scope="col" class="px-6 py-3">تحميل</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      @for (doc of clientDocuments(); track doc.id) {
+                        <tr class="bg-white dark:bg-gray-800 border-b dark:border-gray-700">
+                          <td class="px-6 py-4 font-medium">{{ doc.name }}</td>
+                          <td class="px-6 py-4">{{ doc.caseId }}</td>
+                          <td class="px-6 py-4">{{ doc.uploadDate | date:'longDate' }}</td>
+                          <td class="px-6 py-4">
+                            <a [href]="doc.url" target="_blank" class="text-primary-500 hover:text-primary-700">
+                              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+                            </a>
+                          </td>
+                        </tr>
+                      } @empty {
+                         <tr><td colspan="4" class="px-6 py-12 text-center text-gray-500">لا توجد مستندات مشتركة.</td></tr>
+                      }
+                    </tbody>
+                  </table>
+                </div>
+               </div>
+            }
+            @case ('invoices') {
+               <div class="bg-white dark:bg-gray-800 rounded-xl shadow overflow-hidden">
+                <div class="overflow-x-auto">
+                  <table class="w-full text-sm text-right text-gray-500 dark:text-gray-400">
+                    <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-300">
+                      <tr>
+                        <th scope="col" class="px-6 py-3">رقم الفاتورة</th>
+                        <th scope="col" class="px-6 py-3">القضية</th>
+                        <th scope="col" class="px-6 py-3">التاريخ</th>
+                        <th scope="col" class="px-6 py-3">المبلغ الإجمالي</th>
+                        <th scope="col" class="px-6 py-3">الحالة</th>
+                        <th scope="col" class="px-6 py-3">عرض</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      @for (invoice of clientInvoices(); track invoice.id) {
+                         <tr class="bg-white dark:bg-gray-800 border-b dark:border-gray-700">
+                            <td class="px-6 py-4 font-medium">{{ invoice.id }}</td>
+                            <td class="px-6 py-4">{{ invoice.caseId }}</td>
+                            <td class="px-6 py-4">{{ invoice.date | date:'longDate' }}</td>
+                            <td class="px-6 py-4 font-semibold">{{ invoice.grandTotal | number:'1.2-2' }} AED</td>
+                            <td class="px-6 py-4"><span class="px-2 py-1 text-xs font-medium rounded-full" [class]="getInvoiceStatusClass(invoice.status)">{{ getInvoiceStatusText(invoice.status) }}</span></td>
+                            <td class="px-6 py-4"><a href="#" class="text-primary-500 hover:underline">PDF</a></td>
+                         </tr>
+                      } @empty {
+                         <tr><td colspan="6" class="px-6 py-12 text-center text-gray-500">لا توجد فواتير لعرضها.</td></tr>
+                      }
+                    </tbody>
+                  </table>
+                </div>
+               </div>
+            }
+            @case ('my-requests') {
+              <div class="bg-white dark:bg-gray-800 rounded-xl shadow overflow-hidden">
+                <div class="p-4"><h3 class="text-lg font-bold">سجل طلباتي واستفساراتي</h3></div>
+                <div class="overflow-x-auto">
+                  <table class="w-full text-sm text-right text-gray-500 dark:text-gray-400">
+                    <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-300">
+                      <tr>
+                        <th class="px-6 py-3">تاريخ الطلب</th>
+                        <th class="px-6 py-3">الموضوع</th>
+                        <th class="px-6 py-3">الحالة</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      @for (request of clientRequests(); track request.id) {
+                        <tr class="bg-white dark:bg-gray-800 border-b dark:border-gray-700">
+                          <td class="px-6 py-4">{{ request.requestDate | date:'longDate' }}</td>
+                          <td class="px-6 py-4 font-medium">{{ request.subject }}</td>
+                          <td class="px-6 py-4"><span class="px-2 py-1 text-xs font-medium rounded-full" [class]="getStatusClass(request.status)">{{ request.status }}</span></td>
+                        </tr>
+                      } @empty {
+                        <tr><td colspan="3" class="px-6 py-12 text-center text-gray-500">لم تقم بإرسال أي طلبات بعد.</td></tr>
+                      }
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            }
+            @case ('contact') {
+              <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md max-w-2xl mx-auto">
+                <h3 class="text-xl font-bold mb-4">أرسل رسالة إلى فريقنا</h3>
+                <form [formGroup]="contactForm" (ngSubmit)="sendMessage()" class="space-y-4">
+                  <div>
+                    <label class="block text-sm font-medium mb-1">الموضوع</label>
+                    <input type="text" formControlName="subject" class="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600">
+                  </div>
+                   <div>
+                    <label class="block text-sm font-medium mb-1">رسالتك</label>
+                    <textarea formControlName="message" rows="5" class="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"></textarea>
+                  </div>
+                  <div class="text-left">
+                    <button type="submit" [disabled]="contactForm.invalid" class="px-6 py-2 bg-primary-600 text-white font-semibold rounded-lg hover:bg-primary-700 transition disabled:opacity-50">إرسال</button>
+                  </div>
+                </form>
+              </div>
+            }
+          }
+        </div>
+      </main>
+    </div>
+  } @else {
+    <div class="text-center py-20">
+      <h2 class="text-2xl font-bold text-red-500">خطأ في الوصول</h2>
+      <p class="mt-4 text-gray-500">لا يمكن العثور على بيانات العميل. يرجى تسجيل الدخول مرة أخرى.</p>
+    </div>
+  }
+</div>
+
+<!-- Case Details Modal -->
+@if (isCaseModalVisible() && selectedCase(); as caseItem) {
+  <div class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center animate-fade-in" (click)="closeCaseModal()">
+    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-3xl flex flex-col transform transition-all duration-300 scale-95 animate-scale-in" (click)="$event.stopPropagation()">
+      <header class="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
+        <h2 class="text-xl font-bold text-gray-800 dark:text-white">تفاصيل القضية: {{ caseItem.id }}</h2>
+        <button type="button" (click)="closeCaseModal()" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+        </button>
+      </header>
+      <div class="flex-1 p-6 overflow-y-auto max-h-[70vh] space-y-4">
+        <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+          <h4 class="font-bold mb-2">ملخص القضية</h4>
+          <p>{{ caseItem.subject }}</p>
+        </div>
+        <div>
+          <h4 class="font-bold mb-2">آخر الجلسات</h4>
+          <div class="space-y-3">
+            @for(session of sessionsForSelectedCase(); track session.id) {
+              <div class="border p-3 rounded-md dark:border-gray-700">
+                <p class="font-semibold">{{ session.sessionDate | date:'fullDate' }}</p>
+                <p class="text-sm text-gray-600 dark:text-gray-300"><strong>القرار السابق:</strong> {{ session.previousDecision }}</p>
+                <p class="text-sm text-gray-600 dark:text-gray-300"><strong>قرار الجلسة:</strong> {{ session.sessionDecision || 'لم يصدر بعد' }}</p>
+              </div>
+            } @empty {
+              <p class="text-sm text-gray-500">لا توجد جلسات مسجلة لهذه القضية.</p>
+            }
+          </div>
+        </div>
+      </div>
+      <footer class="p-4 border-t border-gray-200 dark:border-gray-700 text-left">
+         <button type="button" (click)="closeCaseModal()" class="px-6 py-2 bg-primary-600 text-white font-semibold rounded-lg hover:bg-primary-700 transition">إغلاق</button>
+      </footer>
+    </div>
+  </div>
+}

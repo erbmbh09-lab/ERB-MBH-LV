@@ -1,0 +1,223 @@
+<div class="space-y-6">
+  <!-- Header -->
+  <div>
+    <h2 class="text-3xl font-bold text-gray-800 dark:text-white">التحقق من قوائم العقوبات (GoAML)</h2>
+    <p class="mt-2 text-gray-500 dark:text-gray-400">
+      أداة للتحقق من أسماء العملاء والخصوم مقابل قوائم العقوبات المحلية والدولية للامتثال لمتطلبات مكافحة غسيل الأموال وتمويل الإرهاب.
+    </p>
+  </div>
+  
+  <!-- Tabs Navigation -->
+  <div class="border-b border-gray-200 dark:border-gray-700">
+    <nav class="-mb-px flex space-x-8 rtl:space-x-reverse" aria-label="Tabs">
+      <button 
+        (click)="activeTab.set('manual')"
+        class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors duration-200 focus:outline-none flex items-center gap-2"
+        [class.border-primary-500]="activeTab() === 'manual'"
+        [class.text-primary-600]="activeTab() === 'manual'"
+        [class.border-transparent]="activeTab() !== 'manual'"
+        [class.text-gray-500]="activeTab() !== 'manual'">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
+        <span>تحقق يدوي</span>
+      </button>
+      <button 
+        (click)="activeTab.set('report')"
+        class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors duration-200 focus:outline-none flex items-center gap-2"
+        [class.border-primary-500]="activeTab() === 'report'"
+        [class.text-primary-600]="activeTab() === 'report'"
+        [class.border-transparent]="activeTab() !== 'report'"
+        [class.text-gray-500]="activeTab() !== 'report'">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+        <span>تقارير مستوردة</span>
+      </button>
+    </nav>
+  </div>
+
+  <div class="pt-2">
+    @switch (activeTab()) {
+      @case ('manual') {
+        <div class="space-y-8 animate-fade-in-up">
+          <!-- Search Section -->
+          <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md">
+            <div class="max-w-2xl mx-auto">
+                <label for="name-to-check" class="block text-lg font-medium text-center mb-4">أدخل الاسم الكامل للتحقق</label>
+                <div class="flex flex-col sm:flex-row items-center gap-2">
+                    <div class="relative w-full">
+                        <input 
+                            type="text" 
+                            id="name-to-check"
+                            list="client-names"
+                            [ngModel]="nameToCheck()"
+                            (ngModelChange)="nameToCheck.set($event)"
+                            (keydown.enter)="performCheck()"
+                            [disabled]="isLoading()"
+                            placeholder="الاسم باللغة العربية أو الإنجليزية" 
+                            class="w-full text-center text-lg p-3 border-2 border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors">
+                        <datalist id="client-names">
+                            @for(client of allClients(); track client.id) {
+                                <option [value]="client.nameAr"></option>
+                                @if(client.nameEn) {
+                                <option [value]="client.nameEn"></option>
+                                }
+                            }
+                        </datalist>
+                    </div>
+                    <button 
+                        (click)="performCheck()" 
+                        [disabled]="isLoading() || !nameToCheck().trim()"
+                        class="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3.5 bg-primary-600 text-white font-bold rounded-lg hover:bg-primary-700 transition-colors shadow-md disabled:bg-gray-400 disabled:cursor-not-allowed">
+                        @if (isLoading()) {
+                            <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                            <span>جاري التحقق...</span>
+                        } @else {
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                            <span>تحقق الآن</span>
+                        }
+                    </button>
+                </div>
+            </div>
+          </div>
+
+          <!-- Result Section -->
+          @if (searchResult(); as result) {
+            <div class="max-w-4xl mx-auto animate-fade-in">
+                @switch (result.status) {
+                    @case ('safe') {
+                        <div class="border-2 border-green-500 bg-green-50 dark:bg-green-900/30 p-6 rounded-xl flex flex-col sm:flex-row items-center gap-4">
+                            <div class="flex-shrink-0 w-16 h-16 rounded-full bg-green-100 dark:bg-green-900/50 flex items-center justify-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-bold text-green-800 dark:text-green-300">نتيجة آمنة</h3>
+                                <p class="mt-1">لم يتم العثور على أي تطابق للاسم "<span class="font-semibold">{{ result.nameChecked }}</span>" في قوائم العقوبات.</p>
+                            </div>
+                        </div>
+                    }
+                    @case ('match') {
+                        <div class="border-2 border-red-500 bg-red-50 dark:bg-red-900/30 p-6 rounded-xl">
+                            <div class="flex flex-col sm:flex-row items-center gap-4">
+                                <div class="flex-shrink-0 w-16 h-16 rounded-full bg-red-100 dark:bg-red-900/50 flex items-center justify-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+                                </div>
+                                <div>
+                                    <h3 class="text-xl font-bold text-red-800 dark:text-red-300">تنبيه: تم العثور على تطابق محتمل!</h3>
+                                    <p class="mt-1">تم العثور على تطابق محتمل للاسم "<span class="font-semibold">{{ result.nameChecked }}</span>". يرجى إجراء المزيد من التحقق.</p>
+                                </div>
+                            </div>
+                            @if (result.details; as details) {
+                                <div class="mt-4 pt-4 border-t border-red-200 dark:border-red-900/50 text-sm space-y-2">
+                                    <p><strong>نسبة التطابق:</strong> <span class="font-bold">{{ details.matchScore }}%</span></p>
+                                    <p><strong>مصدر القائمة:</strong> {{ details.sourceList }}</p>
+                                    <p><strong>سبب الإدراج:</strong> {{ details.reason }}</p>
+                                </div>
+                            }
+                        </div>
+                    }
+                }
+            </div>
+          }
+
+          <!-- History Section -->
+          <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md">
+            <h3 class="text-xl font-bold mb-4">سجل عمليات التحقق الأخيرة</h3>
+            @if (searchHistory().length > 0) {
+              <div class="overflow-x-auto">
+                <table class="w-full text-sm text-right">
+                  <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-300">
+                    <tr>
+                      <th class="px-4 py-2">الاسم الذي تم التحقق منه</th>
+                      <th class="px-4 py-2">النتيجة</th>
+                      <th class="px-4 py-2">تاريخ التحقق</th>
+                    </tr>
+                  </thead>
+                  <tbody class="text-gray-600 dark:text-gray-300 divide-y dark:divide-gray-700">
+                    @for (item of searchHistory(); track $index) {
+                      <tr>
+                        <td class="px-4 py-3 font-medium">{{ item.nameChecked }}</td>
+                        <td class="px-4 py-3">
+                          @if (item.status === 'safe') {
+                            <span class="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300">آمن</span>
+                          } @else {
+                            <span class="px-2 py-1 text-xs font-medium rounded-full bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-300">تطابق محتمل</span>
+                          }
+                        </td>
+                        <td class="px-4 py-3">{{ item.timestamp | date:'medium' }}</td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+            } @else {
+              <p class="text-center text-gray-500 py-8">لم يتم إجراء أي عمليات تحقق بعد.</p>
+            }
+          </div>
+        </div>
+      }
+      @case('report') {
+        <div class="space-y-6 animate-fade-in-up">
+          <!-- Filters and Actions -->
+          <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-4 w-full md:w-auto">
+              <input type="text" placeholder="بحث بالاسم أو الرقم المرجعي..."
+                class="w-full md:w-64 px-4 py-2 border rounded-lg bg-white dark:bg-gray-700 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                [ngModel]="reportSearchTerm()" (ngModelChange)="reportSearchTerm.set($event)">
+              
+              <select class="w-full md:w-auto px-4 py-2 border rounded-lg bg-white dark:bg-gray-700 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                [ngModel]="reportStatusFilter()" (ngModelChange)="reportStatusFilter.set($event)">
+                <option value="all">كل الحالات</option>
+                <option value="آمن">آمن</option>
+                <option value="مطابق">مطابق</option>
+                <option value="قيد المراجعة">قيد المراجعة</option>
+              </select>
+            </div>
+            
+            <label class="flex items-center justify-center gap-2 px-4 py-2 text-white bg-secondary-500 hover:bg-secondary-400 rounded-lg shadow cursor-pointer transition-colors">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" /></svg>
+              <span>استيراد تقرير</span>
+              <input type="file" class="hidden" (change)="onFileImport($event)">
+            </label>
+          </div>
+
+          <!-- Report Table -->
+          <div class="bg-white dark:bg-gray-800 rounded-xl shadow overflow-hidden">
+            <div class="overflow-x-auto">
+              <table class="w-full text-sm text-right text-gray-500 dark:text-gray-400">
+                <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-300">
+                  <tr>
+                    <th class="px-6 py-3">الرقم المرجعي</th>
+                    <th class="px-6 py-3">الاسم</th>
+                    <th class="px-6 py-3">تاريخ الحركة</th>
+                    <th class="px-6 py-3">المبلغ</th>
+                    <th class="px-6 py-3">الحالة</th>
+                    <th class="px-6 py-3">ملاحظات</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (item of filteredReportData(); track item.id) {
+                    <tr class="bg-white dark:bg-gray-800 border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                      <td class="px-6 py-4 font-mono text-xs">{{ item.referenceNumber }}</td>
+                      <td class="px-6 py-4 font-medium text-gray-900 dark:text-white">{{ item.name }}</td>
+                      <td class="px-6 py-4">{{ item.transactionDate | date:'short' }}</td>
+                      <td class="px-6 py-4">{{ item.amount | number }} {{ item.currency }}</td>
+                      <td class="px-6 py-4">
+                        <span class="px-2 py-1 text-xs font-medium rounded-full" [class]="getStatusClass(item.status)">{{ item.status }}</span>
+                      </td>
+                      <td class="px-6 py-4 text-xs">{{ item.notes }}</td>
+                    </tr>
+                  } @empty {
+                    <tr>
+                      <td colspan="6" class="px-6 py-12 text-center text-gray-500 dark:text-gray-400">
+                          <p class="text-lg">لا توجد بيانات لعرضها.</p>
+                          <p class="text-sm">قم باستيراد تقرير أو غيّر فلاتر البحث.</p>
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      }
+    }
+  </div>
+</div>

@@ -1,0 +1,165 @@
+<div class="flex h-full bg-gray-50 dark:bg-gray-900/50 rounded-lg overflow-hidden">
+      <!-- Agreements List -->
+      <div [class]="selectedAgreementDetails() ? 'w-1/3 border-l-2 border-gray-100 dark:border-gray-800' : 'w-full'" class="p-4 transition-all duration-300 ease-in-out flex flex-col">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-xl font-bold text-gray-800 dark:text-gray-200">إدارة الاتفاقيات المهنية</h2>
+          <button (click)="openModal()" class="flex items-center gap-2 bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition-colors">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" /></svg>
+            <span>اتفاقية جديدة</span>
+          </button>
+        </div>
+        
+        <!-- Filters -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          <input type="text" [ngModel]="searchTerm()" (ngModelChange)="searchTerm.set($event)" placeholder="ابحث باسم العميل أو التفاصيل..." class="w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500">
+          
+          <select [ngModel]="statusFilter()" (ngModelChange)="statusFilter.set($event)" class="w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500">
+            <option value="all">كل الحالات</option>
+            <option value="مسودة">مسودة</option>
+            <option value="مرسلة">مرسلة</option>
+            <option value="مقبولة">مقبولة</option>
+            <option value="منتهية">منتهية</option>
+          </select>
+        </div>
+        
+        <!-- Agreements Table -->
+        <div class="flex-grow overflow-y-auto">
+          <table class="w-full text-sm text-right text-gray-500 dark:text-gray-400">
+            <thead class="text-xs text-gray-700 uppercase bg-gray-100 dark:bg-gray-700 dark:text-gray-300 sticky top-0">
+              <tr>
+                <th scope="col" class="px-6 py-3">العميل</th>
+                <th scope="col" class="px-6 py-3">النوع</th>
+                <th scope="col" class="px-6 py-3">المبلغ</th>
+                <th scope="col" class="px-6 py-3">الحالة</th>
+                <th scope="col" class="px-6 py-3">تاريخ البدء</th>
+                <th scope="col" class="px-6 py-3">الإجراءات</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (agreement of filteredAgreements(); track agreement.id) {
+                <tr (click)="viewDetails(agreement)" class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 cursor-pointer" [class.bg-primary-50]="selectedAgreementDetails()?.id === agreement.id" [class.dark:bg-primary-900/40]="selectedAgreementDetails()?.id === agreement.id">
+                  <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">{{ getClientName(agreement.clientId) }}</td>
+                  <td class="px-6 py-4">{{ agreement.type }}</td>
+                  <td class="px-6 py-4">{{ agreement.amount | number }} درهم</td>
+                  <td class="px-6 py-4">
+                    <span [class]="getStatusClass(agreement.status)" class="px-2 py-1 text-xs font-medium rounded-full">{{ agreement.status }}</span>
+                  </td>
+                  <td class="px-6 py-4">{{ agreement.startDate | date:'dd/MM/yyyy' }}</td>
+                  <td class="px-6 py-4">
+                    <button (click)="openModal(agreement); $event.stopPropagation()" class="text-primary-600 hover:text-primary-800 dark:text-primary-400 dark:hover:text-primary-200">تعديل</button>
+                  </td>
+                </tr>
+              } @empty {
+                 <tr><td colspan="6" class="text-center py-8 text-gray-500">لا توجد اتفاقيات مطابقة.</td></tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Details Pane -->
+      @if (selectedAgreementDetails(); as agreement) {
+        <div class="w-2/3 p-4 overflow-y-auto bg-white dark:bg-gray-800/50">
+          <div class="flex items-center justify-between mb-4">
+              <h3 class="text-xl font-bold text-gray-800 dark:text-gray-200">تفاصيل الاتفاقية: {{ getClientName(agreement.clientId) }}</h3>
+              <button (click)="closeDetails()" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+              </button>
+          </div>
+          
+          <!-- Quotes Section -->
+          <div class="mb-6 bg-gray-50 dark:bg-gray-900/40 p-4 rounded-lg">
+            <h4 class="font-bold mb-2 text-gray-700 dark:text-gray-300">عروض الأسعار</h4>
+            @for (quote of agreementQuotes(); track quote.id) {
+              <div class="p-3 border rounded-lg mb-2 bg-white dark:bg-gray-800">
+                <div class="flex justify-between items-center">
+                  <p class="font-semibold">{{ quote.id }} - {{ quote.totalAmount | number }} درهم</p>
+                  <span class="text-sm px-2 py-1 rounded-full" [class.bg-green-100]="quote.status === 'مقبول'" [class.text-green-800]="quote.status === 'مقبول'">{{ quote.status }}</span>
+                </div>
+              </div>
+            } @empty {
+              <p class="text-sm text-gray-500">لا توجد عروض أسعار لهذه الاتفاقية.</p>
+            }
+            
+            <form [formGroup]="quoteForm" (ngSubmit)="onQuoteSubmit()" class="mt-4 border-t pt-4">
+                <h5 class="font-semibold mb-2 text-sm">إضافة عرض سعر جديد</h5>
+                <div formArrayName="items">
+                  @for (item of quoteItems.controls; track $index) {
+                    <div [formGroupName]="$index" class="grid grid-cols-12 gap-2 mb-2 items-center">
+                        <input type="text" formControlName="description" placeholder="الوصف" class="col-span-6 p-2 text-sm border rounded bg-white dark:bg-gray-700">
+                        <input type="number" formControlName="quantity" placeholder="الكمية" class="col-span-2 p-2 text-sm border rounded bg-white dark:bg-gray-700">
+                        <input type="number" formControlName="unitPrice" placeholder="السعر" class="col-span-2 p-2 text-sm border rounded bg-white dark:bg-gray-700">
+                        <input type="number" formControlName="total" placeholder="الإجمالي" class="col-span-1 p-2 text-sm border rounded bg-gray-100 dark:bg-gray-600">
+                        <button type="button" (click)="removeQuoteItem($index)" class="text-red-500 hover:text-red-700">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" /></svg>
+                        </button>
+                    </div>
+                  }
+                </div>
+                <button type="button" (click)="addQuoteItem()" class="text-sm text-primary-600 hover:underline mb-2">إضافة بند</button>
+                <div class="flex justify-between items-center mt-2">
+                    <p class="dark:text-gray-300">الإجمالي: {{ quoteTotal() | number }} درهم</p>
+                    <button type="submit" class="px-3 py-1 bg-primary-600 text-white text-sm rounded hover:bg-primary-700">حفظ عرض السعر</button>
+                </div>
+            </form>
+          </div>
+
+          <!-- Emails Section -->
+          <div class="bg-gray-50 dark:bg-gray-900/40 p-4 rounded-lg">
+            <h4 class="font-bold mb-2 text-gray-700 dark:text-gray-300">البريد الإلكتروني</h4>
+            @for(email of agreementEmails(); track email.id) {
+               <div class="p-3 border rounded-lg mb-2 bg-white dark:bg-gray-800">
+                <p class="font-semibold dark:text-gray-200">{{ email.subject }} <span class="text-xs font-normal text-gray-500">({{email.direction}})</span></p>
+                <p class="text-sm text-gray-600 dark:text-gray-400 whitespace-pre-wrap">{{email.body}}</p>
+              </div>
+            } @empty {
+                <p class="text-sm text-gray-500">لا يوجد سجل بريد إلكتروني.</p>
+            }
+            <form [formGroup]="emailForm" (ngSubmit)="onEmailSubmit()" class="mt-4 border-t pt-4">
+               <h5 class="font-semibold mb-2 text-sm">إرسال بريد إلكتروني جديد</h5>
+               <input type="text" formControlName="subject" placeholder="الموضوع" class="w-full p-2 mb-2 text-sm border rounded bg-white dark:bg-gray-700">
+               <textarea formControlName="body" placeholder="محتوى الرسالة..." rows="4" class="w-full p-2 text-sm border rounded bg-white dark:bg-gray-700"></textarea>
+               <div class="text-left mt-2">
+                   <button type="submit" class="px-3 py-1 bg-primary-600 text-white text-sm rounded hover:bg-primary-700">إرسال</button>
+               </div>
+            </form>
+          </div>
+        </div>
+      }
+    </div>
+
+    <!-- Add/Edit Agreement Modal -->
+    @if (isModalVisible()) {
+      <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" (click)="closeModal()">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 w-full max-w-lg" (click)="$event.stopPropagation()">
+          <h3 class="text-lg font-bold mb-4">{{ editingAgreement() ? 'تعديل اتفاقية' : 'إضافة اتفاقية جديدة' }}</h3>
+          <form [formGroup]="agreementForm" (ngSubmit)="onAgreementSubmit()">
+            <div class="grid grid-cols-2 gap-4">
+              <div class="col-span-2">
+                <label class="block text-sm font-medium mb-1">العميل</label>
+                <select formControlName="clientId" class="w-full p-2 border rounded bg-white dark:bg-gray-700">
+                  <option [ngValue]="null" disabled>اختر العميل...</option>
+                  @for (client of allClients(); track client.id) {
+                    <option [value]="client.id">{{ client.nameAr }}</option>
+                  }
+                </select>
+              </div>
+              <div><label class="block text-sm">النوع</label><select formControlName="type" class="w-full p-2 border rounded bg-white dark:bg-gray-700"><option value="عادية">عادية</option><option value="سنوية">سنوية</option></select></div>
+              <div><label class="block text-sm">الحالة</label><select formControlName="status" class="w-full p-2 border rounded bg-white dark:bg-gray-700"><option value="مسودة">مسودة</option><option value="مرسلة">مرسلة</option><option value="مقبولة">مقبولة</option><option value="منتهية">منتهية</option></select></div>
+              <div><label class="block text-sm">تاريخ البدء</label><input type="date" formControlName="startDate" class="w-full p-2 border rounded bg-white dark:bg-gray-700"></div>
+              <div><label class="block text-sm">تاريخ الانتهاء (اختياري)</label><input type="date" formControlName="endDate" class="w-full p-2 border rounded bg-white dark:bg-gray-700"></div>
+              <div class="col-span-2"><label class="block text-sm">المبلغ</label><input type="number" formControlName="amount" class="w-full p-2 border rounded bg-white dark:bg-gray-700"></div>
+              <div class="col-span-2"><label class="block text-sm">التفاصيل</label><textarea formControlName="details" rows="3" class="w-full p-2 border rounded bg-white dark:bg-gray-700"></textarea></div>
+            </div>
+            <div class="mt-4">
+              <label class="block text-sm font-medium mb-1">إرفاق ملف الاتفاقية</label>
+              <app-file-upload></app-file-upload>
+            </div>
+            <div class="mt-6 flex justify-end gap-3">
+              <button type="button" (click)="closeModal()" class="px-4 py-2 rounded bg-gray-200 dark:bg-gray-600 hover:bg-gray-300 dark:hover:bg-gray-500">إلغاء</button>
+              <button type="submit" [disabled]="agreementForm.invalid" class="px-4 py-2 rounded bg-primary-600 text-white hover:bg-primary-700 disabled:bg-primary-300 dark:disabled:bg-primary-800 disabled:cursor-not-allowed">حفظ</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    }

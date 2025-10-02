@@ -1,0 +1,112 @@
+<div class="animate-fade-in-up">
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 min-h-[70vh]">
+
+    <!-- Right Column: User List -->
+    <div class="lg:col-span-4 bg-white dark:bg-gray-800 rounded-xl shadow-md flex flex-col">
+      <div class="p-4 border-b dark:border-gray-700">
+        <h3 class="text-lg font-bold">قائمة المستخدمين</h3>
+        <div class="relative mt-2">
+          <input type="text" [ngModel]="searchTerm()" (ngModelChange)="searchTerm.set($event)" placeholder="ابحث عن مستخدم..." class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500">
+          <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+          </span>
+        </div>
+      </div>
+      <div class="flex-1 overflow-y-auto">
+        <ul class="divide-y dark:divide-gray-700">
+          @for (user of filteredUsers(); track user.id + user.userType) {
+            <li (click)="selectUser(user)" class="p-4 cursor-pointer transition-colors duration-200"
+                [class.bg-primary-50]="selectedUser()?.id === user.id"
+                [class.dark:bg-primary-900/40]="selectedUser()?.id === user.id"
+                [class.hover:bg-gray-50]="selectedUser()?.id !== user.id"
+                [class.dark:hover:bg-gray-700/50]="selectedUser()?.id !== user.id">
+              <div class="flex justify-between items-center">
+                <div>
+                  <p class="font-semibold text-gray-800 dark:text-gray-200">{{ user.name }}</p>
+                  <p class="text-sm text-gray-500 dark:text-gray-400">{{ user.role }}</p>
+                </div>
+                @if (selectedUser()?.id === user.id) {
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-primary-500" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                  </svg>
+                }
+              </div>
+            </li>
+          }
+        </ul>
+      </div>
+    </div>
+
+    <!-- Left Column: Permissions -->
+    <div class="lg:col-span-8 bg-white dark:bg-gray-800 rounded-xl shadow-md flex flex-col">
+      @if (selectedUser(); as user) {
+        <!-- Header -->
+        <div class="p-4 border-b dark:border-gray-700 flex justify-between items-center sticky top-0 bg-white dark:bg-gray-800 z-10">
+          <div>
+            <h3 class="text-lg font-bold">صلاحيات المستخدم: <span class="text-primary-600 dark:text-primary-400">{{ user.name }}</span></h3>
+            <p class="text-sm text-gray-500 dark:text-gray-400">حدد الصلاحيات الممنوحة للمستخدم.</p>
+          </div>
+          <div class="flex gap-2">
+            <button (click)="resetChanges()" [disabled]="!isDirty()" class="px-4 py-2 text-sm rounded-lg border dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed">
+              إعادة تعيين
+            </button>
+            <button (click)="saveChanges()" [disabled]="!isDirty()" class="px-4 py-2 text-sm rounded-lg bg-primary-600 text-white hover:bg-primary-700 disabled:bg-gray-400 disabled:cursor-not-allowed">
+              حفظ التغييرات
+            </button>
+          </div>
+        </div>
+        
+        <!-- Permissions List -->
+        <div class="flex-1 overflow-y-auto p-4 space-y-3">
+          @for(category of permissionStructure(); track category.id) {
+            <details class="bg-gray-50 dark:bg-gray-900/50 rounded-lg overflow-hidden" open>
+              <summary class="flex items-center gap-3 p-3 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700/50 font-bold">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-primary-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" [innerHTML]="category.icon"></svg>
+                <span>{{ category.name }}</span>
+              </summary>
+              <div class="p-4 border-t dark:border-gray-700 space-y-4">
+                @for(group of category.groups; track group.id) {
+                  <div class="border dark:border-gray-700 rounded-md">
+                    <div class="flex items-center gap-3 p-3 bg-gray-100 dark:bg-gray-700/50">
+                      <input 
+                        type="checkbox" 
+                        [id]="group.id"
+                        class="form-checkbox h-5 w-5 rounded text-primary-600 focus:ring-primary-500"
+                        [checked]="isGroupChecked(group)"
+                        [indeterminate]="isGroupIndeterminate(group)"
+                        (change)="toggleGroupPermissions(group, $event)">
+                      <label [for]="group.id" class="font-semibold text-sm">{{ group.name }}</label>
+                    </div>
+                    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 p-4">
+                      @for(perm of group.permissions; track perm.id) {
+                        <label class="flex items-center gap-2 text-sm cursor-pointer">
+                          <input 
+                            type="checkbox"
+                            [checked]="selectedUserPermissions().has(perm.id)"
+                            (change)="togglePermission(perm.id, $event.target.checked)"
+                            class="form-checkbox h-4 w-4 rounded text-primary-600 focus:ring-primary-500">
+                          <span>{{ perm.name }}</span>
+                        </label>
+                      }
+                    </div>
+                  </div>
+                }
+              </div>
+            </details>
+          }
+        </div>
+      } @else {
+        <div class="flex flex-col items-center justify-center h-full text-center p-8">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12.5 11.5L9.5 8.5" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9.5 11.5L12.5 8.5" />
+          </svg>
+          <h3 class="mt-4 text-xl font-bold">لم يتم اختيار مستخدم</h3>
+          <p class="mt-2 text-gray-500 dark:text-gray-400">الرجاء اختيار مستخدم من القائمة لعرض وتعديل صلاحياته.</p>
+        </div>
+      }
+    </div>
+
+  </div>
+</div>

@@ -1,0 +1,178 @@
+<div class="space-y-6">
+  <!-- Header -->
+  <div>
+    <h2 class="text-3xl font-bold text-gray-800 dark:text-white">طلبات العملاء</h2>
+    <p class="mt-2 text-gray-500 dark:text-gray-400">
+      إدارة ومتابعة جميع طلبات واستفسارات العملاء.
+    </p>
+  </div>
+  
+  <!-- Stats Cards -->
+  <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-5">
+    <div class="bg-white dark:bg-gray-800 p-5 rounded-xl shadow">
+      <p class="text-sm font-medium text-gray-500 dark:text-gray-400">الإجمالي</p>
+      <p class="mt-1 text-2xl font-semibold text-gray-900 dark:text-white">{{ statistics().total }}</p>
+    </div>
+    <div class="bg-white dark:bg-gray-800 p-5 rounded-xl shadow">
+      <p class="text-sm font-medium text-gray-500 dark:text-gray-400">جديدة</p>
+      <p class="mt-1 text-2xl font-semibold text-blue-600 dark:text-blue-400">{{ statistics().new }}</p>
+    </div>
+    <div class="bg-white dark:bg-gray-800 p-5 rounded-xl shadow">
+      <p class="text-sm font-medium text-gray-500 dark:text-gray-400">قيد المراجعة</p>
+      <p class="mt-1 text-2xl font-semibold text-yellow-600 dark:text-yellow-400">{{ statistics().inReview }}</p>
+    </div>
+    <div class="bg-white dark:bg-gray-800 p-5 rounded-xl shadow">
+      <p class="text-sm font-medium text-gray-500 dark:text-gray-400">تم التنفيذ</p>
+      <p class="mt-1 text-2xl font-semibold text-green-600 dark:text-green-400">{{ statistics().completed }}</p>
+    </div>
+     <div class="bg-white dark:bg-gray-800 p-5 rounded-xl shadow">
+      <p class="text-sm font-medium text-gray-500 dark:text-gray-400">مغلقة</p>
+      <p class="mt-1 text-2xl font-semibold text-gray-600 dark:text-gray-300">{{ statistics().closed }}</p>
+    </div>
+  </div>
+
+  <!-- Filters and Actions -->
+  <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+    <div class="relative w-full md:w-1/3">
+      <input 
+        [ngModel]="searchTerm()" 
+        (ngModelChange)="searchTerm.set($event)" 
+        type="text" 
+        placeholder="بحث بالعميل, الموظف, التفاصيل..." 
+        class="w-full pl-10 pr-4 py-2 border rounded-lg bg-white dark:bg-gray-700 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-primary-500">
+       <svg class="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" /></svg>
+    </div>
+    <div class="flex items-center gap-2 w-full md:w-auto">
+       <select [ngModel]="statusFilter()" (ngModelChange)="statusFilter.set($event)" class="w-full md:w-auto px-4 py-2 border rounded-lg bg-white dark:bg-gray-700 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-primary-500">
+         @for (status of statusFilterOptions; track status) {
+           <option [value]="status">{{ status === 'all' ? 'كل الحالات' : status }}</option>
+         }
+       </select>
+       <button (click)="exportData()" class="flex items-center justify-center gap-2 px-4 py-2 text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg shadow-sm transition-colors">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+        <span>تصدير</span>
+      </button>
+       <button (click)="openModal(null)" class="flex items-center justify-center gap-2 px-4 py-2 text-white bg-primary-600 hover:bg-primary-700 rounded-lg shadow transition-colors">
+         <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+         <span>إضافة طلب</span>
+       </button>
+    </div>
+  </div>
+
+  <!-- Table -->
+  <div class="overflow-x-auto bg-white dark:bg-gray-800 rounded-lg shadow">
+    <table class="min-w-full text-sm divide-y divide-gray-200 dark:divide-gray-700">
+      <thead class="bg-gray-100 dark:bg-gray-700">
+        <tr>
+          <th class="px-6 py-3 text-right font-semibold">#</th>
+          <th class="px-6 py-3 text-right font-semibold">العميل</th>
+          <th class="px-6 py-3 text-right font-semibold">تفاصيل الطلب</th>
+          <th class="px-6 py-3 text-right font-semibold">الموظف المسؤول</th>
+          <th class="px-6 py-3 text-right font-semibold">تاريخ الطلب</th>
+          <th class="px-6 py-3 text-right font-semibold">الحالة</th>
+          <th class="px-6 py-3 text-right font-semibold">الإجراءات</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+        @for (request of filteredRequests(); track request.id) {
+          <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50">
+            <td class="px-6 py-4">{{ request.id }}</td>
+            <td class="px-6 py-4 font-semibold text-gray-800 dark:text-gray-200">{{ getClientName(request.clientId) }}</td>
+            <td class="px-6 py-4 max-w-sm truncate">
+              <p class="font-medium">{{ request.requestType }}</p>
+              <p class="text-xs text-gray-500">{{ request.details }}</p>
+            </td>
+            <td class="px-6 py-4">{{ getEmployeeName(request.assignedTo) }}</td>
+            <td class="px-6 py-4">{{ request.requestDate | date:'dd/MM/yyyy' }}</td>
+            <td class="px-6 py-4">
+              <span class="inline-flex items-center gap-2 px-2 py-1 text-xs rounded-full font-medium" [class]="getStatusClass(request.status)">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" [attr.d]="getStatusIcon(request.status)" /></svg>
+                {{ request.status }}
+              </span>
+            </td>
+            <td class="px-6 py-4">
+              <div class="flex items-center gap-2">
+                <button (click)="openModal(request)" class="text-primary-600 dark:text-primary-400 p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full" title="تعديل"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg></button>
+                <button (click)="deleteRequest(request.id)" class="text-red-500 p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full" title="حذف"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg></button>
+              </div>
+            </td>
+          </tr>
+        } @empty {
+          <tr><td colspan="7" class="p-8 text-center text-gray-400">لا توجد طلبات تطابق معايير البحث.</td></tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Modal -->
+@if (isModalVisible()) {
+  <div class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60 animate-fade-in" (click)="closeModal()">
+    <div class="w-full max-w-2xl bg-white dark:bg-gray-800 rounded-2xl shadow-2xl flex flex-col transform animate-scale-in" (click)="$event.stopPropagation()">
+      <form [formGroup]="requestForm" (ngSubmit)="onSubmit()">
+        <header class="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
+            <h3 class="text-xl font-semibold">{{ editingRequest() ? 'تعديل طلب' : 'إضافة طلب جديد' }}</h3>
+            <button type="button" (click)="closeModal()" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+            </button>
+        </header>
+        
+        <main class="p-6 space-y-4 max-h-[70vh] overflow-y-auto">
+          <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div>
+                <label class="block mb-1 text-sm font-medium">العميل <span class="text-red-500">*</span></label>
+                <select formControlName="clientId" class="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600">
+                  <option [ngValue]="null" disabled>-- اختر العميل --</option>
+                  @for (client of allClients; track client.id) {
+                    <option [value]="client.id">{{ client.nameAr }}</option>
+                  }
+                </select>
+              </div>
+              <div>
+                <label class="block mb-1 text-sm font-medium">نوع الطلب <span class="text-red-500">*</span></label>
+                <select formControlName="requestType" class="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600">
+                  @for (type of requestTypes; track type) {
+                    <option [value]="type">{{ type }}</option>
+                  }
+                </select>
+              </div>
+              <div>
+                <label class="block mb-1 text-sm font-medium">تاريخ الطلب <span class="text-red-500">*</span></label>
+                <input type="date" formControlName="requestDate" class="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600">
+              </div>
+              <div>
+                <label class="block mb-1 text-sm font-medium">الموظف المسؤول <span class="text-red-500">*</span></label>
+                <select formControlName="assignedTo" class="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600">
+                  <option [ngValue]="null" disabled>-- اختر الموظف --</option>
+                  @for (emp of allEmployees; track emp.id) {
+                    <option [value]="emp.id">{{ emp.name }}</option>
+                  }
+                </select>
+              </div>
+              <div>
+                <label class="block mb-1 text-sm font-medium">الحالة <span class="text-red-500">*</span></label>
+                <select formControlName="status" class="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600">
+                  @for (status of statusOptions; track status) {
+                    <option [value]="status">{{ status }}</option>
+                  }
+                </select>
+              </div>
+              <div>
+                <label class="block mb-1 text-sm font-medium">رقم القضية (اختياري)</label>
+                <input type="text" formControlName="caseId" class="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600">
+              </div>
+          </div>
+          <div>
+            <label class="block mb-1 text-sm font-medium">التفاصيل <span class="text-red-500">*</span></label>
+            <textarea formControlName="details" rows="4" class="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600"></textarea>
+          </div>
+        </main>
+
+        <footer class="flex justify-end items-center gap-x-3 p-4 bg-gray-50 dark:bg-gray-700/50 border-t dark:border-gray-700">
+          <button type="button" (click)="closeModal()" class="px-4 py-2 text-sm border rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600">إلغاء</button>
+          <button type="submit" [disabled]="requestForm.invalid" class="px-4 py-2 text-sm text-white bg-primary-600 rounded-lg hover:bg-primary-700 disabled:bg-gray-400">حفظ</button>
+        </footer>
+      </form>
+    </div>
+  </div>
+}

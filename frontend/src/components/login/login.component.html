@@ -1,0 +1,57 @@
+<div class="flex items-center justify-center min-h-screen bg-gray-100 dark:bg-gray-900">
+  <div class="w-full max-w-md p-8 space-y-8 bg-white dark:bg-gray-800 rounded-2xl shadow-2xl animate-fade-in-down">
+    <div class="text-center">
+        <h1 class="text-2xl font-bold text-gray-800 dark:text-white">محمد بني هاشم</h1>
+        <p class="text-md text-gray-500 dark:text-gray-400">للمحاماة والاستشارات القانونية</p>
+        <p class="mt-4 text-xl font-semibold text-primary-600 dark:text-primary-400">تسجيل الدخول</p>
+    </div>
+    
+    <form class="space-y-6" [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+      <div>
+        <label for="username" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">اسم المستخدم</label>
+        <input 
+          id="username" 
+          type="text" 
+          formControlName="username"
+          placeholder="أدخل الرقم التعريفي"
+          class="w-full px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 focus:border-primary-400 focus:ring-primary-300 focus:ring-opacity-40 dark:focus:border-primary-300 focus:outline-none focus:ring">
+      </div>
+      
+      <div>
+        <div class="flex justify-between items-center mb-2">
+            <label for="password" class="text-sm font-medium text-gray-700 dark:text-gray-300">كلمة السر</label>
+            <a href="#" class="text-xs text-primary-500 hover:underline">نسيت كلمة المرور؟</a>
+        </div>
+        <input 
+            id="password" 
+            type="password"
+            formControlName="password" 
+            placeholder="********"
+            class="w-full px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 focus:border-primary-400 focus:ring-primary-300 focus:ring-opacity-40 dark:focus:border-primary-300 focus:outline-none focus:ring">
+      </div>
+
+      @if (errorMessage()) {
+        <div class="p-3 text-sm text-red-700 bg-red-100 rounded-lg dark:bg-red-900/40 dark:text-red-300" role="alert">
+            {{ errorMessage() }}
+        </div>
+      }
+
+      <div>
+        <button 
+          type="submit" 
+          [disabled]="loginForm.invalid || isLoading()"
+          class="w-full flex justify-center px-4 py-3 font-semibold text-white transition-colors duration-200 transform bg-primary-600 rounded-lg hover:bg-primary-700 focus:outline-none focus:bg-primary-700 disabled:bg-gray-400 dark:disabled:bg-gray-600">
+          @if (isLoading()) {
+            <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            <span>جاري التحقق...</span>
+          } @else {
+            <span>تسجيل الدخول</span>
+          }
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

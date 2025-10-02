@@ -1,0 +1,314 @@
+<div class="space-y-6">
+  <!-- Header -->
+  <div>
+    <h2 class="text-3xl font-bold text-gray-800 dark:text-white">سجل المكالمات الهاتفية</h2>
+    <p class="mt-2 text-gray-500 dark:text-gray-400">توثيق ومتابعة جميع المكالمات الهاتفية الواردة والصادرة.</p>
+  </div>
+
+  <!-- Stats -->
+  <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+    <div class="bg-white dark:bg-gray-800 p-5 rounded-xl shadow">
+      <p class="text-sm font-medium text-gray-500 dark:text-gray-400">إجمالي المكالمات</p>
+      <p class="mt-1 text-2xl font-semibold text-gray-900 dark:text-white">{{ stats().total }}</p>
+    </div>
+    <div class="bg-white dark:bg-gray-800 p-5 rounded-xl shadow">
+      <p class="text-sm font-medium text-gray-500 dark:text-gray-400">مكالمات واردة</p>
+      <p class="mt-1 text-2xl font-semibold text-blue-600 dark:text-blue-400">{{ stats().incoming }}</p>
+    </div>
+    <div class="bg-white dark:bg-gray-800 p-5 rounded-xl shadow">
+      <p class="text-sm font-medium text-gray-500 dark:text-gray-400">مكالمات صادرة</p>
+      <p class="mt-1 text-2xl font-semibold text-green-600 dark:text-green-400">{{ stats().outgoing }}</p>
+    </div>
+    <div class="bg-white dark:bg-gray-800 p-5 rounded-xl shadow">
+      <p class="text-sm font-medium text-gray-500 dark:text-gray-400">تتطلب متابعة</p>
+      <p class="mt-1 text-2xl font-semibold text-yellow-600 dark:text-yellow-400">{{ stats().followUp }}</p>
+    </div>
+  </div>
+
+  <!-- Filters and Actions -->
+  <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+    <div class="relative w-full md:w-1/3">
+      <input type="text" placeholder="بحث (الاسم, الرقم, الموضوع...)"
+        class="w-full pl-10 pr-4 py-2 border rounded-lg bg-white dark:bg-gray-700 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-primary-500"
+        [ngModel]="searchTerm()" (ngModelChange)="searchTerm.set($event)">
+      <svg class="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" /></svg>
+    </div>
+    <div class="flex items-center gap-4 w-full md:w-auto">
+      <select class="w-full md:w-auto px-4 py-2 border rounded-lg bg-white dark:bg-gray-700 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-primary-500"
+        [ngModel]="typeFilter()" (ngModelChange)="typeFilter.set($event)">
+        <option value="all">كل الأنواع</option>
+        <option value="واردة">واردة</option>
+        <option value="صادرة">صادرة</option>
+      </select>
+       <select class="w-full md:w-auto px-4 py-2 border rounded-lg bg-white dark:bg-gray-700 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-primary-500"
+        [ngModel]="statusFilter()" (ngModelChange)="statusFilter.set($event)">
+        <option value="all">كل الحالات</option>
+        <option value="مكتملة">مكتملة</option>
+        <option value="تتطلب متابعة">تتطلب متابعة</option>
+      </select>
+      <button (click)="openReportModal()" class="flex items-center justify-center gap-2 px-4 py-2 text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg shadow transition-colors">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm7-9a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
+        <span>إعداد كشف</span>
+      </button>
+      <button (click)="openModal(null)" class="flex items-center justify-center gap-2 px-4 py-2 text-white bg-primary-600 hover:bg-primary-700 rounded-lg shadow transition-colors">
+        <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
+        <span>إضافة مكالمة</span>
+      </button>
+    </div>
+  </div>
+  
+  <!-- Call Log Table -->
+  <div class="bg-white dark:bg-gray-800 rounded-xl shadow overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm text-right text-gray-500 dark:text-gray-400">
+        <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-300">
+          <tr>
+            <th scope="col" class="px-6 py-3">الاسم / الرقم</th>
+            <th scope="col" class="px-6 py-3">التاريخ والوقت</th>
+            <th scope="col" class="px-6 py-3">المدة (دقيقة)</th>
+            <th scope="col" class="px-6 py-3">الموضوع</th>
+            <th scope="col" class="px-6 py-3">الموظف</th>
+            <th scope="col" class="px-6 py-3">الحالة</th>
+            <th scope="col" class="px-6 py-3">إجراء</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (log of filteredLogs(); track log.id) {
+            <tr class="bg-white dark:bg-gray-800 border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50">
+              <td class="px-6 py-4 font-medium text-gray-900 dark:text-white">
+                <div class="flex items-center gap-2">
+                  @if(log.callType === 'واردة') {
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 8l-4 4m0 0l-4-4m4 4v9" /></svg>
+                  } @else {
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>
+                  }
+                  <div>
+                    <p>{{ log.callerName }}</p>
+                    <p class="text-xs text-gray-500">{{ log.callerNumber }}</p>
+                  </div>
+                </div>
+              </td>
+              <td class="px-6 py-4">{{ log.callDate | date:'longDate' }} - {{log.callTime}}</td>
+              <td class="px-6 py-4">{{ log.duration }}</td>
+              <td class="px-6 py-4 font-semibold">{{ log.subject }}</td>
+              <td class="px-6 py-4">{{ getEmployeeName(log.employeeId) }}</td>
+              <td class="px-6 py-4">
+                <span class="px-2 py-1 text-xs font-medium rounded-full" [class]="getStatusClass(log.status)">
+                  {{ log.status }}
+                </span>
+              </td>
+              <td class="px-6 py-4">
+                <div class="flex items-center gap-2">
+                  <button (click)="openModal(log)" class="text-primary-600 dark:text-primary-400 p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full" title="تعديل"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg></button>
+                  <button (click)="deleteLog(log.id)" class="text-red-500 p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full" title="حذف"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg></button>
+                </div>
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="7" class="px-6 py-12 text-center text-gray-500 dark:text-gray-400">
+                <p class="text-lg">لا توجد مكالمات مسجلة تطابق معايير البحث.</p>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Add/Edit Modal -->
+@if (isModalVisible()) {
+  <div class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center animate-fade-in" (click)="closeModal()">
+    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-3xl flex flex-col transform transition-all duration-300 scale-95 animate-scale-in" (click)="$event.stopPropagation()">
+      <form [formGroup]="callLogForm" (ngSubmit)="onSubmit()">
+        <header class="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
+          <h2 class="text-xl font-bold text-gray-800 dark:text-white">
+            {{ editingCall() ? 'تعديل سجل مكالمة' : 'إضافة سجل مكالمة' }}
+          </h2>
+          <button type="button" (click)="closeModal()" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+          </button>
+        </header>
+
+        <div class="flex-1 p-6 overflow-y-auto space-y-4 max-h-[70vh]">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium mb-1">نوع المكالمة <span class="text-red-500">*</span></label>
+              <select formControlName="callType" class="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600">
+                <option value="واردة">واردة</option>
+                <option value="صادرة">صادرة</option>
+              </select>
+            </div>
+             <div>
+              <label class="block text-sm font-medium mb-1">الحالة <span class="text-red-500">*</span></label>
+              <select formControlName="status" class="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600">
+                <option value="مكتملة">مكتملة</option>
+                <option value="تتطلب متابعة">تتطلب متابعة</option>
+              </select>
+            </div>
+             <div>
+              <label class="block text-sm font-medium mb-1">اسم المتصل <span class="text-red-500">*</span></label>
+              <input type="text" formControlName="callerName" class="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600">
+            </div>
+            <div>
+              <label class="block text-sm font-medium mb-1">رقم الهاتف <span class="text-red-500">*</span></label>
+              <input type="text" formControlName="callerNumber" class="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600">
+            </div>
+            <div>
+              <label class="block text-sm font-medium mb-1">التاريخ <span class="text-red-500">*</span></label>
+              <input type="date" formControlName="callDate" class="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600">
+            </div>
+            <div>
+              <label class="block text-sm font-medium mb-1">الوقت <span class="text-red-500">*</span></label>
+              <input type="time" formControlName="callTime" class="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600">
+            </div>
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-1">الموضوع <span class="text-red-500">*</span></label>
+            <input type="text" formControlName="subject" class="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600">
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-1">التفاصيل</label>
+            <textarea formControlName="details" rows="5" class="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"></textarea>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium mb-1">المدة (بالدقائق) <span class="text-red-500">*</span></label>
+              <input type="number" formControlName="duration" class="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600">
+            </div>
+            <div>
+              <label class="block text-sm font-medium mb-1">الموظف المسؤول <span class="text-red-500">*</span></label>
+              <select formControlName="employeeId" class="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600">
+                <option [ngValue]="null" disabled>-- اختر الموظف --</option>
+                @for(employee of allEmployees(); track employee.id) { <option [value]="employee.id">{{ employee.name }}</option> }
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm font-medium mb-1">القضية المرتبطة (إن وجدت)</label>
+              <input type="text" formControlName="relatedCaseId" placeholder="مثال: DXB-C-2024-112" class="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600">
+            </div>
+          </div>
+        </div>
+        
+        <footer class="flex justify-end items-center gap-4 p-4 border-t border-gray-200 dark:border-gray-700">
+          <button type="button" (click)="closeModal()" class="px-6 py-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition">إلغاء</button>
+          <button type="submit" [disabled]="callLogForm.invalid" class="px-6 py-2 bg-primary-600 text-white font-semibold rounded-lg hover:bg-primary-700 transition disabled:bg-gray-400 disabled:cursor-not-allowed">حفظ</button>
+        </footer>
+      </form>
+    </div>
+  </div>
+}
+
+<!-- Report Modal -->
+@if (isReportModalVisible()) {
+  <div class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center animate-fade-in printable-modal-area" (click)="closeReportModal()">
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-5xl flex flex-col transform animate-scale-in modal-content-print" (click)="$event.stopPropagation()">
+      <header class="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700 no-print">
+        <h3 class="text-xl font-bold">إعداد كشف سجل المكالمات</h3>
+        <button (click)="closeReportModal()" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700">
+           <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+        </button>
+      </header>
+      
+      <div class="p-6 overflow-y-auto max-h-[80vh]">
+        <!-- Filters Section -->
+        <div class="p-4 bg-gray-100 dark:bg-gray-700/50 rounded-lg mb-6 no-print">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+              <div>
+                <label class="block text-sm font-medium">الفرع</label>
+                <div class="flex items-center gap-2 mt-1">
+                  <select [ngModel]="reportBranchFilter()" (ngModelChange)="reportBranchFilter.set($event)" class="block w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600">
+                    <option value="all">كل الفروع</option>
+                    @for(branch of availableBranches(); track branch) {
+                      <option [value]="branch">{{ branch }}</option>
+                    }
+                  </select>
+                  <button (click)="isReportExpanded.set(!isReportExpanded())" title="توسيع التقرير" class="p-2 border rounded-md" [class.bg-primary-100]="isReportExpanded()" [class.dark:bg-primary-900/50]="isReportExpanded()" [class.border-primary-400]="isReportExpanded()">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" [attr.d]="isReportExpanded() ? 'M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z' : 'M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z'" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+              <div>
+                <label class="block text-sm font-medium">من تاريخ</label>
+                <input type="date" [ngModel]="reportFromDateFilter()" (ngModelChange)="reportFromDateFilter.set($event)" class="mt-1 block w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600">
+              </div>
+              <div>
+                <label class="block text-sm font-medium">إلى تاريخ</label>
+                <input type="date" [ngModel]="reportToDateFilter()" (ngModelChange)="reportToDateFilter.set($event)" class="mt-1 block w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600">
+              </div>
+              <div>
+                <button (click)="clearReportFilters()" class="w-full px-4 py-2 bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-500">
+                  مسح
+                </button>
+              </div>
+            </div>
+        </div>
+
+        <!-- Report Content -->
+        <div>
+          <h2 class="text-2xl font-bold text-center mb-2">كشف سجل المكالمات</h2>
+          <p class="text-center text-sm text-gray-500 mb-6">
+            @if(reportFromDateFilter() && reportToDateFilter()){
+              <span>للفترة من {{ reportFromDateFilter() | date:'longDate' }} إلى {{ reportToDateFilter() | date:'longDate' }}</span>
+            }
+            @if(reportBranchFilter() !== 'all'){
+              <span> - فرع: {{ reportBranchFilter() }}</span>
+            }
+          </p>
+
+          <div class="grid grid-cols-3 gap-4 mb-6 text-center">
+            <div class="p-3 bg-blue-50 dark:bg-blue-900/50 rounded-lg"><p class="font-bold text-xl">{{ reportStats().incoming }}</p><p class="text-sm">مكالمة واردة</p></div>
+            <div class="p-3 bg-green-50 dark:bg-green-900/50 rounded-lg"><p class="font-bold text-xl">{{ reportStats().outgoing }}</p><p class="text-sm">مكالمة صادرة</p></div>
+            <div class="p-3 bg-gray-100 dark:bg-gray-700/50 rounded-lg"><p class="font-bold text-xl">{{ reportStats().totalDuration }}</p><p class="text-sm">إجمالي الدقائق</p></div>
+          </div>
+          
+          <table class="w-full text-sm text-right">
+            <thead class="bg-gray-100 dark:bg-gray-700/50">
+              <tr>
+                <th class="p-2">التاريخ/الوقت</th>
+                <th class="p-2">النوع</th>
+                <th class="p-2">المتصل</th>
+                <th class="p-2">الموضوع</th>
+                <th class="p-2">المدة</th>
+                <th class="p-2">الموظف</th>
+                <th class="p-2">الفرع</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (log of filteredReportLogs(); track log.id) {
+                <tr class="border-b dark:border-gray-700">
+                  <td class="p-2">{{ log.callDate | date:'yyyy/MM/dd' }} {{log.callTime}}</td>
+                  <td class="p-2">{{ log.callType }}</td>
+                  <td class="p-2 font-semibold">{{ log.callerName }}</td>
+                  <td class="p-2">{{ log.subject }}</td>
+                  <td class="p-2">{{ log.duration }} د</td>
+                  <td class="p-2">{{ getEmployeeName(log.employeeId) }}</td>
+                  <td class="p-2">{{ log.branch }}</td>
+                </tr>
+              } @empty {
+                 <tr><td colspan="7" class="p-8 text-center text-gray-400">لا توجد بيانات لعرضها.</td></tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+      
+      <footer class="flex justify-between items-center p-4 border-t border-gray-200 dark:border-gray-700 no-print">
+        <div class="flex items-center gap-2">
+           <button (click)="printReport()" class="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 dark:text-gray-200 border rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm7-9a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
+            <span>طباعة</span>
+          </button>
+           <button (click)="exportReport()" class="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 dark:text-gray-200 border rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+            <span>تصدير</span>
+          </button>
+        </div>
+        <button (click)="closeReportModal()" class="px-6 py-2 bg-primary-600 text-white font-semibold rounded-lg hover:bg-primary-700 transition">إغلاق</button>
+      </footer>
+    </div>
+  </div>
+}

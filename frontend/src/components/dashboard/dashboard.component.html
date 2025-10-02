@@ -1,0 +1,188 @@
+<div class="space-y-8">
+  <!-- Header -->
+  <div>
+    <h2 class="text-3xl font-bold text-gray-800 dark:text-white">لوحة التحكم</h2>
+    <p class="mt-2 text-gray-500 dark:text-gray-400">نظرة عامة على أهم المؤشرات والأحداث العاجلة.</p>
+  </div>
+  
+  <!-- Stats Section -->
+  @if(dashboardStats(); as stats) {
+    <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        <div class="bg-white dark:bg-gray-800 p-5 rounded-xl shadow animate-fade-in transition-transform duration-300 hover:-translate-y-1">
+          <div class="flex items-center gap-4">
+              <div class="p-3 rounded-full bg-blue-100 dark:bg-blue-900/50 text-blue-500">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+              </div>
+              <div>
+                  <p class="text-sm font-medium text-gray-500 dark:text-gray-400">القضايا النشطة</p>
+                  <p class="mt-1 text-3xl font-semibold text-gray-900 dark:text-white">{{ stats.activeCases }}</p>
+              </div>
+          </div>
+        </div>
+        <div class="bg-white dark:bg-gray-800 p-5 rounded-xl shadow animate-fade-in animation-delay-100 transition-transform duration-300 hover:-translate-y-1">
+           <div class="flex items-center gap-4">
+              <div class="p-3 rounded-full bg-yellow-100 dark:bg-yellow-900/50 text-yellow-500">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+              </div>
+              <div>
+                  <p class="text-sm font-medium text-gray-500 dark:text-gray-400">مواعيد قانونية قادمة</p>
+                  <p class="mt-1 text-3xl font-semibold text-gray-900 dark:text-white">{{ stats.deadlines }}</p>
+              </div>
+          </div>
+        </div>
+        <div class="bg-white dark:bg-gray-800 p-5 rounded-xl shadow animate-fade-in animation-delay-200 transition-transform duration-300 hover:-translate-y-1">
+          <div class="flex items-center gap-4">
+              <div class="p-3 rounded-full bg-red-100 dark:bg-red-900/50 text-red-500">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+              </div>
+              <div>
+                  <p class="text-sm font-medium text-gray-500 dark:text-gray-400">قرارات جلسات متأخرة</p>
+                  <p class="mt-1 text-3xl font-semibold text-gray-900 dark:text-white">{{ stats.lateDecisions }}</p>
+              </div>
+          </div>
+        </div>
+    </div>
+  }
+
+  <!-- Main Content Grid -->
+  <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+    <!-- Column 1: Late Decisions -->
+    <div class="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-md flex flex-col animate-fade-in-up animate-subtle-glow transition-transform duration-300 hover:-translate-y-1">
+      <div class="flex items-center justify-between p-2 mb-4 border-b border-gray-200 dark:border-gray-700">
+        <div class="flex items-center gap-3">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 text-primary-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+            </svg>
+            <h3 class="text-lg font-bold">القرارات المتأخرة</h3>
+        </div>
+        <span class="bg-primary-100 dark:bg-primary-900 text-primary-600 dark:text-primary-300 font-bold px-2.5 py-0.5 rounded-full text-sm">{{ lateSessionDecisions().length }}</span>
+      </div>
+      <div class="space-y-4 overflow-y-auto flex-1 min-h-[28rem] max-h-[28rem]">
+        @for (item of lateSessionDecisions(); track item.sessionId) {
+          <div (click)="navigateToCase(item.caseId)" class="bg-gray-50 dark:bg-gray-700/50 p-3 rounded-lg border border-gray-200 dark:border-gray-700 hover:shadow-lg hover:border-primary-400 dark:hover:border-primary-500 transition-all cursor-pointer">
+            <div class="flex justify-between items-center mb-2">
+              <span class="font-bold text-primary-600 dark:text-primary-400">{{ item.caseNumber }}</span>
+              <span class="text-xs text-gray-500 dark:text-gray-400">تاريخ الجلسة: {{ item.sessionDate | date:'dd/MM/yyyy' }}</span>
+            </div>
+            <div class="space-y-1 text-sm">
+              <p class="text-xs"><span class="font-semibold text-gray-500 dark:text-gray-400">الموكل:</span> {{ item.clientName }}</p>
+              <p class="mt-2 text-center font-semibold text-red-600 dark:text-red-400 bg-red-100 dark:bg-red-900/50 py-1 rounded-md">
+                مطلوب إدخال قرار الجلسة
+              </p>
+            </div>
+            <div class="flex justify-between items-center mt-3 pt-2 border-t border-gray-200 dark:border-gray-600">
+              <div class="text-xs text-gray-500 dark:text-gray-400">
+                الحالة: <span class="font-semibold">متأخر</span>
+              </div>
+              <span [class]="'px-3 py-1 text-xs font-bold text-white rounded-md transition-colors ' + getDelayClass(item.delayHours)">
+                منذ {{ formatDelay(item.delayHours) }}
+              </span>
+            </div>
+          </div>
+        } @empty {
+            <div class="flex flex-col items-center justify-center h-full text-center text-gray-400">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                <p class="mt-2 font-semibold">لا توجد قرارات متأخرة حالياً.</p>
+                <p class="text-sm">جميع قرارات الجلسات مسجلة.</p>
+            </div>
+        }
+      </div>
+    </div>
+
+    <!-- Column 2: Appeals -->
+    <div class="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-md flex flex-col animate-fade-in-up animation-delay-200 animate-subtle-glow transition-transform duration-300 hover:-translate-y-1">
+      <div class="flex items-center justify-between p-2 mb-4 border-b border-gray-200 dark:border-gray-700">
+        <div class="flex items-center gap-3">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 text-primary-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <h3 class="text-lg font-bold">الاستئناف و الطعن</h3>
+        </div>
+        <span class="bg-primary-100 dark:bg-primary-900 text-primary-600 dark:text-primary-300 font-bold px-2.5 py-0.5 rounded-full text-sm">{{ appealDeadlines().length }}</span>
+      </div>
+      <div class="space-y-4 overflow-y-auto flex-1 min-h-[28rem] max-h-[28rem]">
+        @for (item of appealDeadlines(); track item.caseNumber) {
+            <div (click)="navigateToCase(item.caseId)" 
+                 class="p-3 rounded-lg border-r-4 cursor-pointer group transition-all duration-300"
+                 [class]="getAppealCardClass(item.daysRemaining)">
+                <div class="flex justify-between items-center mb-2">
+                    <span class="font-bold text-primary-600 dark:text-primary-400">{{ item.actionRequired }}</span>
+                    <span class="text-xs font-semibold">تاريخ الانتهاء: {{ item.deadlineDate | date:'dd/MM/yyyy' }}</span>
+                </div>
+                <p class="text-sm font-semibold">{{ item.caseNumber }}</p>
+                <p class="text-xs text-gray-600 dark:text-gray-400">{{ item.client }}</p>
+                <div class="mt-2 pt-2 border-t border-gray-300 dark:border-gray-600/50 text-center">
+                    @if (item.isOverdue) {
+                        <div class="font-bold text-red-500 dark:text-red-400 animate-text-pulse">
+                            فوات الميعاد القانوني
+                        </div>
+                    } @else {
+                        <div class="font-bold text-lg">
+                            متبقي <span class="text-2xl font-black animate-text-pulse [animation-duration:2s]" [class.text-red-500]="item.daysRemaining <= 7" [class.text-yellow-600]="item.daysRemaining > 7 && item.daysRemaining <= 15">{{ item.daysRemaining }}</span> يوم
+                        </div>
+                    }
+                </div>
+            </div>
+        } @empty {
+            <div class="flex flex-col items-center justify-center h-full text-center text-gray-400">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                <p class="mt-2 font-semibold">لا توجد مواعيد استئناف أو طعن حالية.</p>
+            </div>
+        }
+      </div>
+    </div>
+
+    <!-- Column 3: Weekly Hearings -->
+    <div class="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-md flex flex-col animate-fade-in-up animation-delay-400 animate-subtle-glow transition-transform duration-300 hover:-translate-y-1">
+      <div class="flex items-center justify-between p-2 mb-4 border-b border-gray-200 dark:border-gray-700">
+        <div class="flex items-center gap-3">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 text-primary-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+            <h3 class="text-lg font-bold">جلسات الأسبوع</h3>
+        </div>
+        <span class="bg-primary-100 dark:bg-primary-900 text-primary-600 dark:text-primary-300 font-bold px-2.5 py-0.5 rounded-full text-sm">{{ weeklyHearings().length }}</span>
+      </div>
+      <div class="space-y-4 overflow-y-auto flex-1 min-h-[28rem] max-h-[28rem]">
+        @for (item of weeklyHearings(); track item.caseNumber) {
+            <div (click)="navigateToCase(item.caseId)" 
+                 class="flex gap-3 cursor-pointer group transition-all duration-300 p-2 rounded-lg"
+                 [class.bg-yellow-100]="item.judgmentPostponed"
+                 [class.dark:bg-yellow-900/40]="item.judgmentPostponed"
+                 [class.bg-orange-100]="item.reservedForJudgment && !item.judgmentPostponed"
+                 [class.dark:bg-orange-900/40]="item.reservedForJudgment && !item.judgmentPostponed"
+                 [class.animate-attention-pulse]="item.reservedForJudgment || item.judgmentPostponed">
+                <div class="flex flex-col items-center justify-center p-2 bg-gray-100 dark:bg-gray-700 rounded-md w-24 text-center group-hover:bg-primary-100 dark:group-hover:bg-primary-900 transition-colors">
+                    <span class="font-bold text-lg text-primary-600 dark:text-primary-300">{{ item.sideDate.split('/')[0] }}</span>
+                    <span class="text-xs text-gray-500 dark:text-gray-400">{{ item.sideDate.split('/')[1] }}/{{ item.sideDate.split('/')[2] }}</span>
+                </div>
+                <div class="flex-1 bg-gray-50 dark:bg-gray-700/50 p-3 rounded-lg text-sm group-hover:shadow-md transition-shadow">
+                    <div class="text-center mb-2">
+                        <span class="font-bold text-primary-600 dark:text-primary-400 border border-gray-300 dark:border-gray-600 px-3 py-1 rounded-full text-xs bg-white dark:bg-gray-800">{{ item.status }}</span>
+                    </div>
+                    @if(item.details) {
+                        <div class="my-2 p-2 rounded-md" 
+                            [class.bg-yellow-100]="item.detailsType === 'warning'" 
+                            [class.dark:bg-yellow-900/30]="item.detailsType === 'warning'"
+                            [class.border-yellow-400]="item.detailsType === 'warning'"
+                            [class.text-yellow-800]="item.detailsType === 'warning'"
+                            [class.dark:text-yellow-200]="item.detailsType === 'warning'"
+                            [class.bg-blue-100]="item.detailsType === 'info'" 
+                            [class.dark:bg-blue-900/30]="item.detailsType === 'info'"
+                            [class.border-blue-400]="item.detailsType === 'info'"
+                            [class.text-blue-800]="item.detailsType === 'info'"
+                            [class.dark:text-blue-200]="item.detailsType === 'info'"
+                            [class.border-r-4]="true">
+                            <p class="text-xs font-semibold whitespace-pre-wrap">{{ item.details }}</p>
+                        </div>
+                    }
+                    <p><span class="font-semibold text-gray-500 dark:text-gray-400">ت.الجلسة:</span> {{ item.hearingDate }}</p>
+                    <p><span class="font-semibold text-gray-500 dark:text-gray-400">رقم القضية:</span> {{ item.caseNumber }}</p>
+                    <p class="text-xs"><span class="font-semibold text-gray-500 dark:text-gray-400">الموكل:</span> {{ item.client }}</p>
+                </div>
+            </div>
+        }
+      </div>
+    </div>
+  </div>
+</div>

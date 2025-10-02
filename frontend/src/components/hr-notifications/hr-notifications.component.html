@@ -1,0 +1,103 @@
+<div class="space-y-8 animate-fade-in">
+  <!-- Employee-related Alerts -->
+  <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md">
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="text-xl font-bold">تنبيهات متعلقة بالموظفين</h3>
+      <span class="px-3 py-1 text-sm font-bold rounded-full" [class]="getUrgencyClass(employeeAlerts().length > 0 ? employeeAlerts()[0]?.daysRemaining ?? 99 : 99)">
+        {{ employeeAlerts().length }} تنبيه
+      </span>
+    </div>
+
+    @if (employeeAlerts().length > 0) {
+      <div class="overflow-x-auto">
+        <table class="w-full text-right text-sm">
+          <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+            <tr>
+              <th class="px-4 py-2">اسم الموظف</th>
+              <th class="px-4 py-2">نوع المستند</th>
+              <th class="px-4 py-2">تاريخ الانتهاء</th>
+              <th class="px-4 py-2">الأيام المتبقية</th>
+            </tr>
+          </thead>
+          <tbody class="text-gray-600 dark:text-gray-300">
+            @for (alert of employeeAlerts(); track alert.ownerId + alert.documentType) {
+              <tr class="border-b dark:border-gray-700">
+                <td class="px-4 py-3 font-medium">{{ alert.ownerName }} ({{ alert.ownerId }})</td>
+                <td class="px-4 py-3">{{ alert.documentType }}</td>
+                <td class="px-4 py-3">{{ alert.expiryDate | date: 'longDate' }}</td>
+                <td class="px-4 py-3">
+                  <span class="px-2 py-1 text-xs rounded-full font-semibold border" [class]="getUrgencyClass(alert.daysRemaining)">
+                    @if (alert.daysRemaining < 0) {
+                      <span>منتهي منذ {{ -alert.daysRemaining }} يوم</span>
+                    } @else {
+                      <span>{{ alert.daysRemaining }} يوم</span>
+                    }
+                  </span>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    } @else {
+      <div class="text-center py-8">
+        <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto h-12 w-12 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <p class="mt-4 font-semibold">لا توجد تنبيهات</p>
+        <p class="text-sm text-gray-500 dark:text-gray-400">جميع مستندات الموظفين سارية المفعول.</p>
+      </div>
+    }
+  </div>
+
+  <!-- Company & Asset Alerts -->
+  <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md">
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="text-xl font-bold">تنبيهات الأصول والبنود المخصصة</h3>
+       <span class="px-3 py-1 text-sm font-bold rounded-full" [class]="getUrgencyClass(companyAlerts().length > 0 ? companyAlerts()[0]?.daysRemaining ?? 99 : 99)">
+        {{ companyAlerts().length }} تنبيه
+      </span>
+    </div>
+
+    @if (companyAlerts().length > 0) {
+      <div class="overflow-x-auto">
+        <table class="w-full text-right text-sm">
+          <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+            <tr>
+              <th class="px-4 py-2">الأصل / المستند</th>
+              <th class="px-4 py-2">الفرع</th>
+              <th class="px-4 py-2">تاريخ الانتهاء</th>
+              <th class="px-4 py-2">الأيام المتبقية</th>
+            </tr>
+          </thead>
+          <tbody class="text-gray-600 dark:text-gray-300">
+            @for (alert of companyAlerts(); track alert.ownerId + alert.documentType) {
+              <tr class="border-b dark:border-gray-700">
+                <td class="px-4 py-3 font-medium">{{ alert.ownerName }}</td>
+                <td class="px-4 py-3"><span class="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300">{{ alert.branch }}</span></td>
+                <td class="px-4 py-3">{{ alert.expiryDate | date: 'longDate' }}</td>
+                <td class="px-4 py-3">
+                  <span class="px-2 py-1 text-xs rounded-full font-semibold border" [class]="getUrgencyClass(alert.daysRemaining)">
+                    @if (alert.daysRemaining < 0) {
+                      <span>منتهي منذ {{ -alert.daysRemaining }} يوم</span>
+                    } @else {
+                      <span>{{ alert.daysRemaining }} يوم</span>
+                    }
+                  </span>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    } @else {
+      <div class="text-center py-8">
+        <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto h-12 w-12 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <p class="mt-4 font-semibold">لا توجد تنبيهات</p>
+        <p class="text-sm text-gray-500 dark:text-gray-400">جميع أصول ومستندات الشركة سارية المفعول.</p>
+      </div>
+    }
+  </div>
+</div>
