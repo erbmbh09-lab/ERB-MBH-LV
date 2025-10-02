@@ -57,6 +57,9 @@ export interface IEmployee extends Document {
     startTime: string;
     endTime: string;
   };
+
+  // For login and permissions
+  loginEnabled?: boolean;
 }
 
 const employeeSchema = new Schema({
@@ -141,7 +144,8 @@ const employeeSchema = new Schema({
   workingHours: {
     startTime: { type: String, required: true },
     endTime: { type: String, required: true }
-  }
+  },
+  loginEnabled: { type: Boolean, default: false }
 }, {
   timestamps: true
 });

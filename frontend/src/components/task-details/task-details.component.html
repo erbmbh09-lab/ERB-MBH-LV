@@ -6,7 +6,9 @@
         <h2 class="text-xl font-bold text-gray-800 dark:text-white">{{ task().title }}</h2>
         <p class="text-sm text-gray-500 dark:text-gray-400">
           مهمة رقم #{{ task().id }} | 
-          <span class="font-semibold">{{ task().type === 'request' ? 'طلب' : 'مهمة معينة' }}</span>
+          <span class="font-semibold">
+            {{ task().type === 'personal' ? 'مهمة شخصية' : task().type === 'assigned' ? 'مهمة معينة' : task().type }}
+          </span>
         </p>
       </div>
       <button type="button" (click)="close.emit()" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700">

@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { ExportService } from '../services/export.service';
-import { validateExportParams } from '../middleware/validation';
+import { validateRequest } from '../middleware/requestValidator';
 import { logger } from '../utils/logger';
 
 interface AuthenticatedRequest extends Request {

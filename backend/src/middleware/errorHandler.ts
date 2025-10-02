@@ -1,3 +1,14 @@
+// Custom APIError for service-level errors
+export class APIError extends Error {
+  status: number;
+  details?: any;
+  constructor(message: string, status = 500, details?: any) {
+    super(message);
+    this.name = 'APIError';
+    this.status = status;
+    this.details = details;
+  }
+}
 import { Request, Response, NextFunction } from 'express';
 import { logger } from '../utils/logger';
 

@@ -1,5 +1,7 @@
 import { Request, Response } from 'express';
 import { Case } from '../models/case.model';
+import { Employee } from '../models/employee.model';
+import { Client } from '../models/client.model';
 import { caseSchema, caseUpdateSchema } from '../schemas/case.schema';
 import { logger } from '../utils/logger';
 
@@ -49,8 +51,8 @@ export const getCases = async (req: Request, res: Response) => {
       }
     });
 
-    const employees = await Employee.find({ id: { $in: Array.from(employeeIds) } });
-    const employeeMap = new Map(employees.map(emp => [emp.id, emp.name]));
+  const employees = await Employee.find({ id: { $in: Array.from(employeeIds) } });
+  const employeeMap = new Map((employees as any[]).map((emp: any) => [emp.id, emp.name]));
 
     // Get related client names
     const clientIds = new Set<number>();
@@ -59,7 +61,7 @@ export const getCases = async (req: Request, res: Response) => {
     });
 
     const clients = await Client.find({ id: { $in: Array.from(clientIds) } });
-    const clientMap = new Map(clients.map(client => [client.id, { 
+    const clientMap = new Map((clients as any[]).map((client: any) => [client.id, {
       nameAr: client.nameAr,
       nameEn: client.nameEn
     }]));
@@ -86,7 +88,7 @@ export const getCases = async (req: Request, res: Response) => {
         }
       }
     });
-  } catch (error) {
+  } catch (error: any) {
     logger.error('Error getting cases:', error);
     res.status(500).json({
       status: 'error',
@@ -140,9 +142,9 @@ export const createCase = async (req: Request, res: Response) => {
       status: 'success',
       data: { case: caseItem }
     });
-  } catch (error) {
+  } catch (error: any) {
     logger.error('Error creating case:', error);
-    if (error.name === 'ZodError') {
+    if (error && error.name === 'ZodError') {
       return res.status(400).json({
         status: 'error',
         message: 'Validation error',
@@ -181,9 +183,9 @@ export const updateCase = async (req: Request, res: Response) => {
       status: 'success',
       data: { case: updatedCase }
     });
-  } catch (error) {
+  } catch (error: any) {
     logger.error('Error updating case:', error);
-    if (error.name === 'ZodError') {
+    if (error && error.name === 'ZodError') {
       return res.status(400).json({
         status: 'error',
         message: 'Validation error',
@@ -221,7 +223,7 @@ export const linkCases = async (req: Request, res: Response) => {
       status: 'success',
       message: 'Cases linked successfully'
     });
-  } catch (error) {
+  } catch (error: any) {
     logger.error('Error linking cases:', error);
     res.status(500).json({
       status: 'error',
@@ -251,7 +253,7 @@ export const deleteCase = async (req: Request, res: Response) => {
       status: 'success',
       message: 'Case deleted successfully'
     });
-  } catch (error) {
+  } catch (error: any) {
     logger.error('Error deleting case:', error);
     res.status(500).json({
       status: 'error',

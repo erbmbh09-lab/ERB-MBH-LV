@@ -147,11 +147,11 @@ export const createEmployee = async (req: Request, res: Response) => {
     });
   } catch (error) {
     logger.error('Error creating employee:', error);
-    if (error.name === 'ZodError') {
+    if (error && (error as any).name === 'ZodError') {
       return res.status(400).json({
         status: 'error',
         message: 'Validation error',
-        errors: error.errors
+        errors: (error as any).errors
       });
     }
     res.status(500).json({
@@ -207,11 +207,11 @@ export const updateEmployee = async (req: Request, res: Response) => {
     });
   } catch (error) {
     logger.error('Error updating employee:', error);
-    if (error.name === 'ZodError') {
+    if (error && (error as any).name === 'ZodError') {
       return res.status(400).json({
         status: 'error',
         message: 'Validation error',
-        errors: error.errors
+        errors: (error as any).errors
       });
     }
     res.status(500).json({

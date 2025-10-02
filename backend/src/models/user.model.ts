@@ -9,6 +9,7 @@ export interface IUser extends Document {
   password: string;
   userType: 'Employee' | 'Client';
   permissions: string[];
+  loginEnabled?: boolean;
   comparePassword: (password: string) => Promise<boolean>;
   generateToken: () => string;
 }
@@ -19,7 +20,8 @@ const userSchema = new Schema({
   username: { type: String, required: true, unique: true },
   password: { type: String, required: true },
   userType: { type: String, required: true, enum: ['Employee', 'Client'] },
-  permissions: [{ type: String }]
+  permissions: [{ type: String }],
+  loginEnabled: { type: Boolean, default: false }
 }, {
   timestamps: true
 });

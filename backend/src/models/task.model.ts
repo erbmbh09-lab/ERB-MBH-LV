@@ -4,6 +4,11 @@ interface IComment {
   authorId: number;
   content: string;
   timestamp: string;
+  attachments?: {
+    fileUrl: string;
+    fileName: string;
+    uploadedAt: string;
+  }[];
 }
 
 interface IApprovalStep {
@@ -27,6 +32,12 @@ export interface ITask extends Document {
   relatedCaseId?: string;
   comments?: IComment[];
   approvalWorkflow?: IApprovalStep[];
+  courtInfo?: {
+    caseNumber?: string;
+    hearingDate?: string;
+    requiredDocuments?: string[];
+    [key: string]: any;
+  };
 }
 
 const taskSchema = new Schema({
@@ -58,7 +69,12 @@ const taskSchema = new Schema({
   comments: [{
     authorId: { type: Number, required: true },
     content: { type: String, required: true },
-    timestamp: { type: String, required: true }
+    timestamp: { type: String, required: true },
+    attachments: [{
+      fileUrl: { type: String },
+      fileName: { type: String },
+      uploadedAt: { type: String }
+    }]
   }],
   approvalWorkflow: [{
     approverId: { type: Number, required: true },
@@ -70,7 +86,13 @@ const taskSchema = new Schema({
     },
     approvedAt: String,
     notes: String
-  }]
+  }],
+  courtInfo: {
+    caseNumber: String,
+    hearingDate: String,
+    requiredDocuments: [String]
+    // Add more fields as needed
+  }
 }, {
   timestamps: true
 });

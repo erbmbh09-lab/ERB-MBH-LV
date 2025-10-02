@@ -115,7 +115,8 @@ export class ExportService {
     // Make headers bold
     worksheet.getRow(1).font = { bold: true };
 
-    return await workbook.xlsx.writeBuffer();
+  // ExcelJS: writeBuffer is a method on workbook.xlsx
+  return await workbook.xlsx.writeBuffer();
   }
 
   /**
@@ -154,6 +155,28 @@ export class ExportService {
         } else {
           await this.addTasksPDFContent(doc, tasks);
         }
+  // --- PDF Content Stubs ---
+  private static async addTimesheetPDFContent(doc: any, tasks: any[]) {
+    doc.moveDown().fontSize(14).text('سجل الساعات (تجريبي)', { align: 'right' });
+    // Add stub content for now
+    tasks.forEach((task, i) => {
+      doc.text(`${i + 1}. ${task.title} - ${task.actualHours || 0} ساعة`, { align: 'right' });
+    });
+  }
+
+  private static async addBillingPDFContent(doc: any, tasks: any[]) {
+    doc.moveDown().fontSize(14).text('تقرير الفوترة (تجريبي)', { align: 'right' });
+    tasks.forEach((task, i) => {
+      doc.text(`${i + 1}. ${task.title} - ${task.billing?.amount || 0} ${task.billing?.currency || ''}`, { align: 'right' });
+    });
+  }
+
+  private static async addTasksPDFContent(doc: any, tasks: any[]) {
+    doc.moveDown().fontSize(14).text('تقرير المهام (تجريبي)', { align: 'right' });
+    tasks.forEach((task, i) => {
+      doc.text(`${i + 1}. ${task.title} - ${this.translateStatus(task.status)}`, { align: 'right' });
+    });
+  }
 
         doc.end();
       } catch (error) {
@@ -240,5 +263,28 @@ export class ExportService {
       'non-billable': 'غير قابل للفوترة'
     };
     return translations[rateType] || rateType;
+  }
+
+  // --- PDF Content Stubs ---
+  private static async addTimesheetPDFContent(doc: any, tasks: any[]) {
+    doc.moveDown().fontSize(14).text('سجل الساعات (تجريبي)', { align: 'right' });
+    // Add stub content for now
+    tasks.forEach((task: any, i: number) => {
+      doc.text(`${i + 1}. ${task.title} - ${task.actualHours || 0} ساعة`, { align: 'right' });
+    });
+  }
+
+  private static async addBillingPDFContent(doc: any, tasks: any[]) {
+    doc.moveDown().fontSize(14).text('تقرير الفوترة (تجريبي)', { align: 'right' });
+    tasks.forEach((task: any, i: number) => {
+      doc.text(`${i + 1}. ${task.title} - ${task.billing?.amount || 0} ${task.billing?.currency || ''}`, { align: 'right' });
+    });
+  }
+
+  private static async addTasksPDFContent(doc: any, tasks: any[]) {
+    doc.moveDown().fontSize(14).text('تقرير المهام (تجريبي)', { align: 'right' });
+    tasks.forEach((task: any, i: number) => {
+      doc.text(`${i + 1}. ${task.title} - ${this.translateStatus(task.status)}`, { align: 'right' });
+    });
   }
 }
